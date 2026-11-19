@@ -7,91 +7,148 @@
 <title>네이버 통합검색 로직 분석 | TAMBLE</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
 <style>
+:root{--bd:#e5e7eb;--mut:#6b7280;--ink:#111827;--pri:#1e3a8a;--bg:#f5f6f8}
 *{box-sizing:border-box}
-body{margin:0;background:#fff;color:#111827;font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;font-size:13px}
-.wrap{max-width:1500px;margin:0 auto;padding:22px 20px 60px}
-h1{font-size:19px;margin:0 0 4px;font-weight:800}
-.sub{color:#6b7280;font-size:12px;margin-bottom:14px}
-hr{border:0;border-top:1px solid #e5e7eb;margin:0 0 14px}
-.desc{border:1px solid #e5e7eb;background:#f9fafb;border-radius:10px;padding:14px 16px;line-height:1.75;color:#374151;font-size:12px}
-.desc b{color:#111827}
-.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:10px}
-.lg{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#374151}
-.sw{width:11px;height:11px;border-radius:2px;display:inline-block}
-.bar-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:22px 0 10px}
-.bar-h h2{font-size:14px;margin:0 6px 0 0;font-weight:800}
-.chip{border:1px solid #d1d5db;background:#fff;border-radius:999px;padding:4px 11px;font-size:12px;cursor:pointer;color:#374151;font-family:inherit}
-.chip.on{background:#1e3a8a;border-color:#1e3a8a;color:#fff;font-weight:700}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
-.lab{font-size:12px;color:#6b7280;margin-right:4px;min-width:44px}
-.row{display:flex;align-items:center;gap:8px;margin:3px 0}
-.rl{width:130px;flex:none;font-size:12px;color:#4b5563;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rl.cl{cursor:pointer}.rl.cl:hover{color:#1e3a8a;text-decoration:underline}
-.stk{flex:1;display:flex;height:21px;border-radius:3px;overflow:hidden;background:#f3f4f6}
-.seg{height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:10.5px;font-weight:700;overflow:hidden;white-space:nowrap}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,-apple-system,"Malgun Gothic",sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto;padding:28px 20px 80px}
+a{color:var(--pri)}
+h1{font-size:24px;margin:0;font-weight:800;letter-spacing:-.4px}
+.upd{color:var(--mut);font-size:13px;margin-top:4px}
+details.how{margin-top:14px;background:#fff;border:1px solid var(--bd);border-radius:12px;padding:12px 18px}
+details.how summary{cursor:pointer;font-weight:700;font-size:14px;list-style:none}
+details.how summary::-webkit-details-marker{display:none}
+details.how summary::before{content:'▸ ';color:var(--mut)}
+details.how[open] summary::before{content:'▾ '}
+details.how ul{margin:10px 0 2px;padding-left:18px;color:#374151;font-size:13.5px;line-height:1.85}
+.fbar{padding:12px 0 4px;margin-top:6px}
+.frow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:4px 0}
+.flab{font-size:12.5px;color:var(--mut);font-weight:600;width:40px;flex:none}
+.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
+.chip{border:1px solid #d1d5db;background:#fff;border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer;color:#374151;font-family:inherit;white-space:nowrap}
+.chip:hover{border-color:var(--pri)}
+.chip.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+.segc{display:inline-flex;border:1px solid #d1d5db;border-radius:8px;overflow:hidden;background:#fff}
+.segc button{border:0;background:#fff;padding:6px 12px;font-size:13px;cursor:pointer;font-family:inherit;color:#374151;white-space:nowrap}
+.segc button+button{border-left:1px solid #e5e7eb}
+.segc button.on{background:var(--pri);color:#fff;font-weight:700}
+select{font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid #d1d5db;border-radius:8px;background:#fff;min-width:200px}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px}
+.lg{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#374151}
+.panel{background:#fff;border:1px solid var(--bd);border-radius:14px;padding:20px 22px;margin-top:16px}
+.ph{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.ph h2{font-size:17px;margin:0;font-weight:800;letter-spacing:-.2px}
+.hint{color:var(--mut);font-size:13px;margin-top:3px}
+.scope{display:inline-block;background:#eef2ff;color:var(--pri);border-radius:6px;padding:3px 9px;font-size:12.5px;font-weight:700}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.kpi{border:1px solid var(--bd);border-radius:12px;padding:14px 16px 14px 20px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c)}
+.kpi .k{font-size:13px;color:#374151;font-weight:700}
+.kpi .v{font-size:30px;font-weight:800;letter-spacing:-.5px;margin:2px 0}
+.kpi .v small{font-size:13px;font-weight:700;margin-left:8px;letter-spacing:0}
+.kpi .s{font-size:12.5px;color:var(--mut)}
+.up{color:#15803d}.dn{color:#b91c1c}.eq{color:#9ca3af}
+.row{display:flex;align-items:center;gap:12px;margin:7px 0}
+.rl{width:150px;flex:none;font-size:13.5px;color:#374151;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rl.cl{cursor:pointer}.rl.cl:hover{color:var(--pri);text-decoration:underline}
+.rl.sel{color:var(--pri);font-weight:800}
+.stk{flex:1;display:flex;height:30px;border-radius:6px;overflow:hidden;background:#f3f4f6;min-width:0}
+.seg{height:100%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;border-right:1px solid rgba(255,255,255,.6)}
+.seg:last-child{border-right:0}
 .seg.lt{color:#1f2937}
-.empty{color:#9ca3af;padding:16px 0}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
-.sq{width:22px;height:22px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:9.5px;font-weight:700;flex:none}
+.rs{width:160px;flex:none;font-size:12.5px;color:#374151;text-align:right;white-space:nowrap}
+.rs .g{color:#15803d;font-weight:700}.rs .o{color:#b45309;font-weight:700}
+.empty{color:#9ca3af;padding:10px 0;font-size:13.5px}
+.grid2{display:block}
+.sq{width:26px;height:26px;border-radius:5px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex:none}
 .sq.lt{color:#1f2937}
-.sqs{display:flex;gap:3px;flex-wrap:wrap}
-.sq.mini{width:12px;height:12px;vertical-align:middle;margin-right:4px}
-.sec{display:inline-flex;align-items:center;height:22px;padding:0 7px;border-radius:3px;background:#fff;border:1px dashed #9ca3af;color:#6b7280;font-size:10.5px;flex:none}
-.flow{display:flex;gap:3px;flex-wrap:wrap;align-items:center}
-table{border-collapse:collapse;width:100%}
-td,th{padding:6px 6px;border-bottom:1px solid #f0f0f0;text-align:left;font-size:12px;vertical-align:middle}
-th{color:#6b7280;font-weight:600}
-td a{color:#1e3a8a;text-decoration:none}
-.chg{font-size:12px;line-height:1.9}
-.chg .d{font-weight:700;margin-right:6px}
-.up{color:#15803d}.dn{color:#b91c1c}
-.note{font-size:11.5px;color:#6b7280;margin-top:6px}
-.card{border:1px solid #e5e7eb;border-radius:10px;padding:14px 16px}
-@media(max-width:900px){.grid{grid-template-columns:1fr}.rl{width:92px}.wrap{padding:16px 12px 50px}}
+.sq.fd{opacity:.4}
+.sq.mini{width:20px;height:20px;font-size:11px;border-radius:4px;vertical-align:middle}
+.sqs{display:flex;gap:3px;align-items:center}
+.sec{display:inline-flex;align-items:center;height:26px;padding:0 9px;border-radius:5px;background:#fff;border:1px dashed #9ca3af;color:#6b7280;font-size:12px;flex:none}
+.flow{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.tbl{width:100%;border-collapse:collapse}
+.tbl td,.tbl th{padding:9px 8px;border-bottom:1px solid #f1f2f4;text-align:left;font-size:13.5px;vertical-align:middle}
+.tbl th{color:var(--mut);font-weight:600;font-size:12.5px;border-bottom:1px solid var(--bd)}
+.tbl tr.grp td{background:#f9fafb;font-weight:800;font-size:13px;color:#374151;padding:7px 8px}
+.tbl tr:not(.grp):hover td{background:#fafbff}
+.kwl{color:var(--pri);font-weight:600;text-decoration:none;cursor:pointer}
+.kwl:hover{text-decoration:underline}
+.pill{display:inline-block;border-radius:999px;padding:2px 9px;font-size:12px;font-weight:700;margin-right:4px}
+.pill.g{background:#dcfce7;color:#166534}.pill.o{background:#fef3c7;color:#92400e}
+.chg div{padding:8px 0;border-bottom:1px solid #f1f2f4;font-size:13.5px;line-height:1.7}
+.chg .d{font-weight:800;margin-right:8px}
+.tag{display:inline-block;font-size:11.5px;color:var(--mut);border:1px solid var(--bd);border-radius:5px;padding:1px 6px;margin-left:6px;font-weight:500;vertical-align:middle}
+.sub2{font-size:13.5px;font-weight:700;color:#374151;margin:20px 0 8px}
+.tbl td.ti{max-width:520px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:900px){
+ .kpis{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}
+ .rl{width:96px;font-size:12.5px}.rs{display:none}
+ .wrap{padding:18px 12px 60px}.panel{padding:16px 14px}
+ .chips{flex-wrap:nowrap;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+ .chips::-webkit-scrollbar{display:none}
+ .hide-m{display:none}.kpi .v{font-size:24px}
+}
 </style>
 </head>
 <body>
 <div class="wrap">
 <h1>네이버 통합검색 로직 분석</h1>
-<div class="sub" id="upd"></div>
-<hr>
-<div class="desc">
-모바일 통합탭(로그아웃 상태)을 키워드마다 <b>하루 한 번</b> 읽어서, 결과 영역에 <b>블로그·카페·웹사이트가 몇 칸씩</b> 나오는지와 섹션 순서를 날짜별로 쌓습니다. 칸 종류는 네이버가 카드마다 붙이는 표시로 가릅니다(인플루언서 아이콘·공식 블로그 체크·대표카페 뱃지). <b>광고(브랜드콘텐츠)</b>도 화면 자리 그대로 칸으로 셉니다. 클립·이미지·AI 브리핑·관련질문 섹션은 칸에서 빠지고 순서 기록에만 남으며, 파워링크·플레이스·쇼핑처럼 따로 그려지는 영역은 칸 수에 넣지 않습니다. 네이버는 요청마다 ±1~2칸씩 결과가 바뀌므로 <b>키워드 하나보다 업종·전체 합계의 이동</b>을 봐야 합니다.
-<div class="legend" id="legend"></div>
+<div class="upd" id="upd"></div>
+<details class="how">
+  <summary>이 화면 읽는 법</summary>
+  <ul>
+    <li>모바일 통합검색(로그아웃 상태)을 키워드마다 <b>매일 아침 7시에 한 번</b> 읽어서, 결과에 <b>블로그·카페·웹사이트가 몇 칸씩</b> 나왔는지 기록합니다.</li>
+    <li><b>칸</b> = 검색 결과에 나오는 글 카드 하나. 광고(브랜드콘텐츠)도 화면 자리를 차지하므로 칸으로 셉니다.</li>
+    <li>클립·이미지·AI 브리핑·관련질문은 칸에서 빼고 순서 기록에만 남깁니다. 파워링크·플레이스·쇼핑은 칸에 넣지 않습니다.</li>
+    <li>종류는 네이버가 카드에 붙인 표시로 나눕니다: 인플루언서 아이콘 / 공식 블로그 체크 / 대표카페 뱃지.</li>
+    <li>네이버는 볼 때마다 1~2칸씩 결과가 바뀝니다. <b>키워드 하나보다 업종·전체 합계의 흐름</b>을 보세요.</li>
+  </ul>
+</details>
+
+<div class="fbar">
+  <div class="frow"><span class="flab">업종</span><div class="chips" id="catChips"></div></div>
+  <div class="frow">
+    <span class="flab">보기</span><select id="kwSel"></select>
+    <span class="segc" id="rgSeg"></span>
+    <span class="segc" id="modeSeg"></span>
+  </div>
+  <div class="legend" id="legend"></div>
 </div>
 
-<div class="bar-h"><h2>보기 범위</h2></div>
-<div class="chips" id="catChips"></div>
-<div class="chips" id="kwChips"></div>
+<div class="panel">
+  <div class="ph"><div><h2>오늘 한눈에 보기</h2><div class="hint" id="kpiHint"></div></div><span class="scope" id="scope1"></span></div>
+  <div class="kpis" id="kpis"></div>
+</div>
 
-<div class="bar-h"><h2>날짜별 전체 구성</h2><span id="modeChips"></span><span class="note" id="scopeNote"></span></div>
-<div id="daily"></div>
+<div class="panel">
+  <div class="ph"><div><h2>날짜별 칸 구성</h2><div class="hint">막대 하나 = 하루. 색 비율이 바뀌면 네이버가 노출 구성을 바꾼 것입니다.</div></div><span class="scope" id="scope2"></span></div>
+  <div id="daily"></div>
+</div>
 
-<div class="grid" style="margin-top:8px">
-  <div>
-    <div class="bar-h"><h2>업종별 비교</h2><span class="note" id="cmpNote"></span></div>
+<div class="grid2">
+  <div class="panel">
+    <div class="ph"><div><h2>업종별 비교</h2><div class="hint" id="cmpHint"></div></div><span class="segc" id="sortSeg"></span></div>
     <div id="cmp"></div>
-    <div class="note">업종 이름을 누르면 그 업종만 봅니다.</div>
   </div>
-  <div>
-    <div class="bar-h"><h2>큰 변동 기록</h2><span class="note">전날 대비 ±4%p 이상 바뀐 칸 종류 (선택 범위 기준)</span></div>
+  <div class="panel">
+    <div class="ph"><div><h2>큰 변동 기록</h2><div class="hint">전날보다 4%p 이상 바뀐 칸 종류</div></div></div>
     <div id="chg" class="chg"></div>
   </div>
 </div>
 
-<div class="bar-h"><h2>키워드별 상위 칸 순서</h2><span class="note" id="kwNote"></span></div>
-<div id="kwTable"></div>
+<div class="panel">
+  <div class="ph"><div><h2>키워드별 칸 순서</h2><div class="hint">위에서부터 나오는 순서대로 왼쪽→오른쪽. 흐린 칸 = 11~15번째. 키워드를 누르면 상세가 열립니다.</div></div><span class="scope" id="scope3"></span></div>
+  <div style="overflow-x:auto"><table class="tbl" id="kwTable"></table></div>
+</div>
 
-<div id="detailWrap" style="display:none">
-  <div class="bar-h"><h2 id="dTitle"></h2></div>
-  <div class="card">
-    <div class="note" style="margin:0 0 6px">오늘 화면 순서 (점선 = 칸에서 빠지는 섹션, 숫자 = 결과 칸 순번)</div>
-    <div class="flow" id="dFlow"></div>
-    <div class="note" style="margin:14px 0 6px">날짜별 칸 순서 (앞 20칸)</div>
-    <div id="dHist"></div>
-    <div class="note" style="margin:14px 0 6px">오늘 결과 칸 목록</div>
-    <div id="dList"></div>
-  </div>
+<div class="panel" id="detailWrap" style="display:none">
+  <div class="ph"><div><h2 id="dTitle"></h2><div class="hint" id="dHint"></div></div><button class="chip" id="dClose">닫기</button></div>
+  <div class="sub2">오늘 화면 순서 <span class="tag">점선 = 칸에서 빠지는 섹션</span></div>
+  <div class="flow" id="dFlow"></div>
+  <div class="sub2">날짜별 칸 순서 (앞 20칸)</div>
+  <div id="dHist"></div>
+  <div class="sub2">오늘 결과 칸 목록</div>
+  <div style="overflow-x:auto"><table class="tbl" id="dList"></table></div>
 </div>
 </div>
 
@@ -99,28 +156,36 @@ td a{color:#1e3a8a;text-decoration:none}
 <script>
 const D = window.DATA;
 const T = {
- B:['블로그','#16a34a'], I:['인플루언서','#14532d'], O:['공식 블로그','#84cc16',1], C:['카페','#f59e0b',1], D:['대표카페','#b45309'],
- W:['웹사이트','#2563eb'], K:['지식iN','#8b5cf6'], V:['동영상','#ef4444'], A:['광고','#475569'], X:['기타','#cbd5e1',1]
+ B:['블로그','#16a34a',0,'블'], I:['인플루언서','#14532d',0,'인'], O:['공식 블로그','#84cc16',1,'공'],
+ C:['카페','#f59e0b',1,'카'], D:['대표카페','#b45309',0,'대'],
+ W:['웹사이트','#2563eb',0,'웹'], K:['지식iN','#8b5cf6',0,'지'], V:['동영상','#ef4444',0,'영'],
+ A:['광고','#475569',0,'광'], X:['기타','#cbd5e1',1,'기']
 };
 const ORDER = ['B','I','O','C','D','W','K','V','A','X'];
+const GROUPS = [
+ {k:'블로그 계열', t:'BIO', c:'#16a34a'},
+ {k:'카페 계열', t:'CD', c:'#f59e0b'},
+ {k:'웹사이트·지식iN·동영상', t:'WKV', c:'#2563eb'},
+ {k:'광고(브랜드콘텐츠)', t:'A', c:'#475569'}
+];
 const KWS = D.kws; const CATS = [...new Set(KWS.map(k=>k.cat))];
 const DATES = Object.keys(D.days).sort();
-const st = {cat:'전체', kw:null, mode:'top', rg:'전체'};
+const LAST = DATES[DATES.length-1], PREV = DATES[DATES.length-2];
+const st = {cat:'전체', kw:null, mode:'top', rg:'전체', sort:'base'};
 const $ = id => document.getElementById(id);
 const esc = s => String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const isCard = t => t.length===1 && T[t];
 const cardsOf = f => (f||[]).filter(isCard);
+const md = d => d ? d.slice(5).replace('-','/') : '';
+const modeTxt = () => st.mode==='top' ? '상위 10칸' : '결과 전체';
+function sq(t, cls, txt, tip){ return `<span class="sq ${cls||''}${T[t][2]?' lt':''}" style="background:${T[t][1]}" title="${esc(tip||T[t][0])}">${txt===undefined?T[t][3]:txt}</span>`; }
 
-$('upd').textContent = '마지막 갱신 ' + new Date(D.updated).toLocaleString('ko-KR',{timeZone:'Asia/Seoul'}) + ' · 기록 ' + DATES.length + '일 · 키워드 ' + KWS.length + '개 · 업종 ' + CATS.length + '개';
-$('legend').innerHTML = ORDER.map(t=>`<span class="lg"><span class="sw" style="background:${T[t][1]}"></span>${T[t][0]}</span>`).join('');
+$('upd').textContent = '마지막 갱신 ' + new Date(D.updated).toLocaleString('ko-KR',{timeZone:'Asia/Seoul', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit'}) + ' · 기록 ' + DATES.length + '일 · 업종 ' + CATS.length + '개 · 키워드 ' + KWS.length + '개';
+$('legend').innerHTML = ORDER.map(t=>`<span class="lg">${sq(t,'mini')}${T[t][0]}</span>`).join('');
 
-function scopeKws(){
-  let ks = KWS;
-  if (st.cat !== '전체') ks = ks.filter(k=>k.cat===st.cat);
-  if (st.rg !== '전체') ks = ks.filter(k=>k.rg===st.rg);
-  if (st.kw) ks = ks.filter(k=>k.kw===st.kw);
-  return ks.map(k=>k.kw);
-}
+function listKws(){ return KWS.filter(k=>(st.cat==='전체'||k.cat===st.cat)&&(st.rg==='전체'||k.rg===st.rg)); }
+function scopeKws(){ return st.kw ? [st.kw] : listKws().map(k=>k.kw); }
+function scopeName(){ if (st.kw) return st.kw; return (st.cat==='전체'?'전체 업종':st.cat) + (st.rg==='지역'?' · 청주 지역형':st.rg==='전국'?' · 전국형':''); }
 function count(date, kws){
   const c = {}; let n = 0, kn = 0;
   for (const kw of kws){
@@ -130,41 +195,51 @@ function count(date, kws){
   }
   return {c, n, kn};
 }
-function stack(c, n){
-  if (!n) return '<div class="stk"></div>';
-  return '<div class="stk">' + ORDER.filter(t=>c[t]).map(t=>{
-    const p = c[t]/n*100; const lab = p>=7 ? Math.round(p)+'%' : '';
-    return `<div class="seg${T[t][2]?' lt':''}" style="width:${p}%;background:${T[t][1]}" title="${T[t][0]} ${c[t]}칸 (${p.toFixed(1)}%)">${lab}</div>`;
+const share = (r, types) => r.n ? [...types].reduce((s,t)=>s+(r.c[t]||0),0)/r.n*100 : 0;
+function stack(r){
+  if (!r.n) return '<div class="stk"></div>';
+  return '<div class="stk">' + ORDER.filter(t=>r.c[t]).map(t=>{
+    const p = r.c[t]/r.n*100; const lab = p>=10 ? T[t][3]+' '+Math.round(p)+'%' : p>=5 ? Math.round(p)+'%' : '';
+    return `<div class="seg${T[t][2]?' lt':''}" style="width:${p}%;background:${T[t][1]}" title="${T[t][0]} ${r.c[t]}칸 (${p.toFixed(1)}%)">${lab}</div>`;
   }).join('') + '</div>';
 }
-function chips(){
-  const cc = ['전체', ...CATS];
-  $('catChips').innerHTML = '<span class="lab">업종</span>' + cc.map(c=>`<button class="chip${st.cat===c?' on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('')
-    + '<span class="lab" style="margin-left:14px">지역</span>' + ['전체','지역','전국'].map(r=>`<button class="chip${st.rg===r?' on':''}" data-r="${r}">${r==='지역'?'청주 지역형':r==='전국'?'전국형':'전체'}</button>`).join('');
-  const ks = KWS.filter(k=>(st.cat==='전체'||k.cat===st.cat)&&(st.rg==='전체'||k.rg===st.rg));
-  $('kwChips').innerHTML = '<span class="lab">키워드</span>' + `<button class="chip${!st.kw?' on':''}" data-k="">합계</button>` + ks.map(k=>`<button class="chip${st.kw===k.kw?' on':''}" data-k="${esc(k.kw)}">${esc(k.kw)}</button>`).join('');
-  $('modeChips').innerHTML = [['top','상위 10칸'],['all','결과 전체']].map(([m,l])=>`<button class="chip${st.mode===m?' on':''}" data-m="${m}">${l}</button>`).join(' ');
+function delta(v){ if (v===null) return ''; const a = Math.round(v); return a>0?`<small class="up">▲ ${a}%p</small>`:a<0?`<small class="dn">▼ ${-a}%p</small>`:`<small class="eq">변동 없음</small>`; }
+
+function filters(){
+  $('catChips').innerHTML = ['전체', ...CATS].map(c=>`<button class="chip${st.cat===c?' on':''}" data-c="${esc(c)}">${esc(c)}</button>`).join('');
+  $('kwSel').innerHTML = `<option value="">키워드 전체 합계</option>` + listKws().map(k=>`<option value="${esc(k.kw)}"${st.kw===k.kw?' selected':''}>${esc(k.kw)}${st.cat==='전체'?'  ('+esc(k.cat)+')':''}</option>`).join('');
+  $('rgSeg').innerHTML = [['전체','지역 전체'],['지역','청주 지역형'],['전국','전국형']].map(([v,l])=>`<button class="${st.rg===v?'on':''}" data-r="${v}">${l}</button>`).join('');
+  $('modeSeg').innerHTML = [['top','상위 10칸'],['all','결과 전체']].map(([v,l])=>`<button class="${st.mode===v?'on':''}" data-m="${v}">${l}</button>`).join('');
+  $('sortSeg').innerHTML = [['base','기본순'],['blog','블로그 많은 순'],['cafe','카페 많은 순']].map(([v,l])=>`<button class="${st.sort===v?'on':''}" data-s="${v}">${l}</button>`).join('');
   document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{st.cat=b.dataset.c; st.kw=null; render();});
   document.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{st.rg=b.dataset.r; st.kw=null; render();});
-  document.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>{st.kw=b.dataset.k||null; render();});
   document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{st.mode=b.dataset.m; render();});
+  document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{st.sort=b.dataset.s; render();});
+  $('kwSel').onchange = e => { st.kw = e.target.value || null; render(); if (st.kw) $('detailWrap').scrollIntoView({behavior:'smooth'}); };
+  ['scope1','scope2','scope3'].forEach(id=>$(id).textContent = (id==='scope3' ? (st.cat==='전체'?'전체 업종':st.cat) : scopeName()) + (id==='scope3' ? '' : ' · ' + modeTxt()));
+}
+function kpis(){
+  const kws = scopeKws(); const r = count(LAST, kws);
+  let rp = null;
+  if (PREV){ const common = kws.filter(k=>D.days[PREV]?.[k] && D.days[LAST]?.[k]); const a = count(PREV, common), b = count(LAST, common); if (a.n && b.n) rp = {a, b}; }
+  $('kpiHint').textContent = md(LAST) + ' 기준 · ' + (st.kw ? r.n+'칸' : '키워드 '+r.kn+'개 합산 '+r.n+'칸') + (PREV ? ' · 화살표 = 전날 대비' : ' · 내일부터 전날 대비 변화가 표시됩니다');
+  $('kpis').innerHTML = GROUPS.map(g=>{
+    const p = share(r, g.t);
+    const d = rp ? share(rp.b, g.t) - share(rp.a, g.t) : null;
+    const parts = [...g.t].filter(t=>r.c[t]).map(t=>`${T[t][0]} ${Math.round(r.c[t]/r.n*100)}%`).join(' · ') || '없음';
+    return `<div class="kpi" style="--c:${g.c}"><div class="k">${g.k}</div><div class="v">${Math.round(p)}%${delta(d)}</div><div class="s">${parts}</div></div>`;
+  }).join('');
 }
 function daily(){
   const kws = scopeKws();
-  $('scopeNote').textContent = (st.kw ? st.kw : (st.cat==='전체'?'전체 업종':st.cat)+' 합계') + (st.rg!=='전체'?' · '+(st.rg==='지역'?'청주 지역형':'전국형'):'');
-  const rows = DATES.slice().reverse().map(d=>{ const r = count(d, kws); return `<div class="row"><div class="rl">${d.slice(5)} · ${st.kw? r.n+'칸' : '키워드 '+r.kn+'개'}</div>${stack(r.c,r.n)}</div>`; });
-  $('daily').innerHTML = rows.join('') || '<div class="empty">아직 기록이 없습니다.</div>';
-  if (DATES.length < 3) $('daily').innerHTML += '<div class="note">기록 시작: '+DATES[0]+' · 매일 한 줄씩 쌓입니다.</div>';
+  $('daily').innerHTML = DATES.slice().reverse().map(d=>{ const r = count(d, kws); return `<div class="row"><div class="rl"><b>${md(d)}</b> <span style="color:#9ca3af">· ${st.kw? r.n+'칸' : '키워드 '+r.kn+'개'}</span></div>${stack(r)}</div>`; }).join('') || '<div class="empty">아직 기록이 없습니다.</div>';
+  if (DATES.length < 3) $('daily').innerHTML += `<div class="hint" style="margin-top:8px">기록 시작 ${md(DATES[0])} · 매일 한 줄씩 늘어납니다.</div>`;
 }
 function compare(){
-  const last = DATES[DATES.length-1];
-  $('cmpNote').textContent = last + ' · ' + (st.mode==='top'?'상위 10칸':'결과 전체');
-  const html = CATS.map(cat=>{
-    const ks = KWS.filter(k=>k.cat===cat && (st.rg==='전체'||k.rg===st.rg)).map(k=>k.kw);
-    const r = count(last, ks);
-    return `<div class="row"><div class="rl cl" data-cc="${esc(cat)}" style="${st.cat===cat?'font-weight:800;color:#1e3a8a':''}">${esc(cat)}</div>${stack(r.c,r.n)}</div>`;
-  }).join('');
-  $('cmp').innerHTML = html;
+  $('cmpHint').textContent = md(LAST) + ' · ' + modeTxt() + ' · 업종 이름을 누르면 그 업종만 봅니다';
+  let rows = CATS.map(cat=>{ const ks = KWS.filter(k=>k.cat===cat && (st.rg==='전체'||k.rg===st.rg)).map(k=>k.kw); const r = count(LAST, ks); return {cat, r, b:share(r,'BIO'), c:share(r,'CD')}; });
+  if (st.sort==='blog') rows.sort((x,y)=>y.b-x.b); if (st.sort==='cafe') rows.sort((x,y)=>y.c-x.c);
+  $('cmp').innerHTML = rows.map(({cat,r,b,c})=>`<div class="row"><div class="rl cl${st.cat===cat?' sel':''}" data-cc="${esc(cat)}">${esc(cat)}</div>${stack(r)}<div class="rs">블로그 <span class="g">${Math.round(b)}%</span> · 카페 <span class="o">${Math.round(c)}%</span></div></div>`).join('');
   document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{st.cat=b.dataset.cc; st.kw=null; render(); window.scrollTo({top:0,behavior:'smooth'});});
 }
 function changes(){
@@ -174,38 +249,45 @@ function changes(){
     const common = kws.filter(k=>D.days[a]?.[k] && D.days[b]?.[k]);
     const ra = count(a, common), rb = count(b, common);
     if (!ra.n || !rb.n) continue;
-    const parts = ORDER.map(t=>{ const dv = ((rb.c[t]||0)/rb.n - (ra.c[t]||0)/ra.n)*100; return [t,dv]; }).filter(([t,dv])=>Math.abs(dv)>=4).sort((x,y)=>Math.abs(y[1])-Math.abs(x[1]));
-    if (parts.length) out.push(`<div><span class="d">${b.slice(5)}</span>` + parts.map(([t,dv])=>`<span class="${dv>0?'up':'dn'}">${T[t][0]} ${dv>0?'+':''}${dv.toFixed(0)}%p</span>`).join(' · ') + '</div>');
+    const parts = ORDER.map(t=>[t, ((rb.c[t]||0)/rb.n - (ra.c[t]||0)/ra.n)*100]).filter(([t,dv])=>Math.abs(dv)>=4).sort((x,y)=>Math.abs(y[1])-Math.abs(x[1]));
+    if (parts.length) out.push(`<div><span class="d">${md(b)}</span>` + parts.map(([t,dv])=>`<span class="${dv>0?'up':'dn'}">${T[t][0]} ${dv>0?'+':''}${dv.toFixed(0)}%p</span>`).join(' · ') + '</div>');
   }
-  $('chg').innerHTML = out.reverse().join('') || '<div class="empty">'+(DATES.length<2?'둘째 날부터 비교가 시작됩니다.':'큰 변동 없음')+'</div>';
+  $('chg').innerHTML = out.reverse().join('') || `<div class="empty" style="border:0">${DATES.length<2?'내일 두 번째 기록이 쌓이면 비교가 시작됩니다.':'큰 변동 없음'}</div>`;
 }
-function sq(t, i, tip){ return `<span class="sq${T[t][2]?' lt':''}" style="background:${T[t][1]}" title="${esc(tip||T[t][0])}">${i||''}</span>`; }
 function kwTable(){
-  const last = DATES[DATES.length-1]; const det = D.detail[last] || {};
-  const ks = KWS.filter(k=>(st.cat==='전체'||k.cat===st.cat)&&(st.rg==='전체'||k.rg===st.rg));
-  $('kwNote').textContent = last + ' · 키워드를 누르면 상세';
-  const rows = ks.map(k=>{
-    const f = D.days[last]?.[k.kw]; if (!f) return `<tr><td>${esc(k.cat)}</td><td>${esc(k.kw)}</td><td colspan="3" class="note">수집 실패</td></tr>`;
+  const det = D.detail[LAST] || {};
+  const ks = listKws();
+  let html = '<tr><th>키워드</th><th>1~10번째 칸</th><th class="hide-m">11~15번째</th><th>상위 10칸 중</th></tr>';
+  let lastCat = null;
+  for (const k of ks){
+    if (st.cat==='전체' && k.cat!==lastCat){ html += `<tr class="grp"><td colspan="4">${esc(k.cat)}</td></tr>`; lastCat = k.cat; }
+    const f = D.days[LAST]?.[k.kw];
+    const nm = `<a class="kwl" data-kd="${esc(k.kw)}">${esc(k.kw)}</a><span class="tag">${k.rg==='지역'?'청주':'전국'}</span>`;
+    if (!f){ html += `<tr><td>${nm}</td><td colspan="3" class="hint">수집 실패</td></tr>`; continue; }
     const cs = cardsOf(f); const cd = det[k.kw] || [];
-    const top = cs.slice(0,15).map((t,i)=>sq(t, i+1, (T[t][0]+' · '+(cd[i]?.n||'')))).join('');
+    const tip = i => (i+1)+'번째 · '+T[cs[i]][0]+(cd[i]?.n?' · '+cd[i].n:'');
+    const top = cs.slice(0,10).map((t,i)=>sq(t,'',undefined,tip(i))).join('');
+    const more = cs.slice(10,15).map((t,i)=>sq(t,'fd',undefined,tip(i+10))).join('');
     const blog = cs.slice(0,10).filter(t=>'BIO'.includes(t)).length, cafe = cs.slice(0,10).filter(t=>'CD'.includes(t)).length;
-    return `<tr><td style="white-space:nowrap;color:#6b7280">${esc(k.cat)}</td><td style="white-space:nowrap"><a href="#" data-kd="${esc(k.kw)}">${esc(k.kw)}</a></td><td><div class="sqs">${top}</div></td><td style="white-space:nowrap">블로그 ${blog} · 카페 ${cafe}</td><td style="white-space:nowrap;color:#6b7280">전체 ${cs.length}칸</td></tr>`;
-  }).join('');
-  $('kwTable').innerHTML = `<table><tr><th>업종</th><th>키워드</th><th>상위 15칸 (왼쪽부터 위→아래 순서)</th><th>상위 10칸</th><th></th></tr>${rows}</table>`;
-  document.querySelectorAll('[data-kd]').forEach(a=>a.onclick=(e)=>{e.preventDefault(); st.kw=a.dataset.kd; render(); $('detailWrap').scrollIntoView({behavior:'smooth'});});
+    html += `<tr><td style="white-space:nowrap">${nm}</td><td><div class="sqs">${top}</div></td><td class="hide-m"><div class="sqs">${more}</div></td><td style="white-space:nowrap"><span class="pill g">블로그 ${blog}</span><span class="pill o">카페 ${cafe}</span></td></tr>`;
+  }
+  $('kwTable').innerHTML = html;
+  document.querySelectorAll('[data-kd]').forEach(a=>a.onclick=()=>{ st.kw=a.dataset.kd; render(); $('detailWrap').scrollIntoView({behavior:'smooth'}); });
 }
 function detail(){
   if (!st.kw){ $('detailWrap').style.display='none'; return; }
   $('detailWrap').style.display='';
-  const last = DATES[DATES.length-1];
-  $('dTitle').innerHTML = esc(st.kw) + ` <span class="note"><a href="https://m.search.naver.com/search.naver?query=${encodeURIComponent(st.kw)}" target="_blank" rel="noopener">네이버에서 보기</a></span>`;
-  const f = D.days[last]?.[st.kw] || []; let i = 0;
-  $('dFlow').innerHTML = f.map(t=> isCard(t) ? sq(t, ++i) : `<span class="sec">${esc(t)}</span>`).join('') || '<span class="empty">기록 없음</span>';
-  $('dHist').innerHTML = DATES.slice().reverse().map(d=>{ const cs = cardsOf(D.days[d]?.[st.kw]); return `<div class="row"><div class="rl">${d.slice(5)}</div><div class="sqs">${cs.slice(0,20).map((t,j)=>sq(t,j+1)).join('')}</div></div>`; }).join('');
-  const cd = (D.detail[last]||{})[st.kw] || [];
-  $('dList').innerHTML = '<table><tr><th>칸</th><th>종류</th><th>출처</th><th>글 제목</th></tr>' + cd.map((c,j)=>`<tr><td>${j+1}</td><td style="white-space:nowrap">${sq(c.t,'').replace('class="sq','class="sq mini')}${T[c.t]?.[0]||c.t}</td><td>${esc(c.n)}</td><td>${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:esc(c.ti||'')}</td></tr>`).join('') + '</table>';
+  const k = KWS.find(x=>x.kw===st.kw) || {};
+  $('dTitle').innerHTML = esc(st.kw) + `<span class="tag">${esc(k.cat||'')}</span>`;
+  $('dHint').innerHTML = md(LAST) + ' 기준 · <a href="https://m.search.naver.com/search.naver?query=' + encodeURIComponent(st.kw) + '" target="_blank" rel="noopener">네이버에서 직접 보기 ↗</a>';
+  const f = D.days[LAST]?.[st.kw] || [];
+  $('dFlow').innerHTML = f.map(t=> isCard(t) ? sq(t) : `<span class="sec">${esc(t)}</span>`).join('') || '<span class="empty">기록 없음</span>';
+  $('dHist').innerHTML = DATES.slice().reverse().map(d=>{ const cs = cardsOf(D.days[d]?.[st.kw]); return `<div class="row"><div class="rl" style="width:56px"><b>${md(d)}</b></div><div class="sqs" style="flex-wrap:wrap">${cs.slice(0,20).map((t,j)=>sq(t, j>=10?'fd':'')).join('')}</div></div>`; }).join('');
+  const cd = (D.detail[LAST]||{})[st.kw] || [];
+  $('dList').innerHTML = '<tr><th style="width:48px">순서</th><th style="width:130px">종류</th><th>출처</th><th>글 제목</th></tr>' + cd.map((c,j)=>`<tr><td><b>${j+1}</b></td><td style="white-space:nowrap">${sq(c.t,'mini')} ${T[c.t]?.[0]||c.t}</td><td>${esc(c.n)}</td><td class="ti">${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:'<span class="hint">'+esc(c.ti||'광고 카드')+'</span>'}</td></tr>`).join('');
 }
-function render(){ chips(); daily(); compare(); changes(); kwTable(); detail(); }
+$('dClose').onclick = () => { st.kw = null; render(); };
+function render(){ filters(); kpis(); daily(); compare(); changes(); kwTable(); detail(); }
 render();
 </script>
 </body>
