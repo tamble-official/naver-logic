@@ -208,6 +208,27 @@ details.how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
  .card::before,.card::after{display:none}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv,h1 .w{opacity:1!important;filter:none!important;transform:none!important}}
+
+.plist{display:flex;flex-direction:column;gap:7px;margin-top:8px}
+.pr{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
+.pr .no{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:12px;background:rgba(255,255,255,.07);color:var(--t2)}
+.pr.top .no{background:var(--grad);color:#fff}
+.pr .nm{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px}
+.pr .vv{text-align:right;font-size:12.5px;color:var(--t2);white-space:nowrap}
+.pr .vv b{color:var(--t1);font-size:14px}
+.pr .track{grid-column:2/4;margin-top:2px}
+.posr{display:grid;grid-template-columns:54px 1fr 118px;align-items:center;gap:10px;margin:5px 0}
+.posr .pn{font-size:12.5px;color:var(--t2);font-weight:700}
+.posr .pd{font-size:12.5px;text-align:right;white-space:nowrap;color:var(--t2)}
+.posr .pd b{color:var(--t1)}
+.posr .stk{height:22px}
+.rkc{display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:1;min-width:0}
+.rkc .it{display:inline-flex;align-items:center;gap:5px;padding:3px 8px 3px 3px;border-radius:9px;background:rgba(255,255,255,.035);border:1px solid var(--line);font-size:12px;color:var(--t2);white-space:nowrap}
+.rkc .it em{font-style:normal;color:var(--t3);font-size:10.5px}
+.rkc .it .o{font-size:10.5px;color:var(--t3);font-weight:800;margin-left:2px}
+.rkc .it.first{border-color:rgba(124,127,255,.55);background:rgba(91,95,239,.14);color:#e3e4ff}
+.rkc .arrow{color:var(--t3);font-size:11px}
+@media(max-width:640px){.posr{grid-template-columns:44px 1fr 70px}.rkc .it em{display:none}}
 </style>
 </head>
 <body>
@@ -233,12 +254,12 @@ details.how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
 
 <section id="sec-ov" class="gh">
   <div class="card rv" style="--rd:.2s">
-    <div class="ch"><span class="lbl">COMPOSITION</span><span class="pill sm ac" id="scopePill"></span></div>
-    <div class="h3">오늘 칸 구성</div>
+    <div class="ch"><span class="lbl">PRIORITY</span><span class="pill sm ac" id="scopePill"></span></div>
+    <div class="h3">노출 우선순위</div><div class="sub">평균 몇 번째 칸에 처음 나오는지로 매긴 순위예요 (안 나오면 11번째로 계산)</div>
     <div class="orbbox">
       <svg viewBox="0 0 290 290" id="rings"></svg>
       <canvas id="orb"></canvas>
-      <div class="oc"><div class="big2" id="orbNum"></div><span class="c">블로그 계열</span></div>
+      <div class="oc"><span class="c" style="margin:0 0 2px;opacity:.8">1순위</span><div class="big2" id="orbNum" style="font-size:34px"></div><span class="c" id="orbSub"></span></div>
     </div>
     <div class="mac fx" id="mac"></div>
   </div>
@@ -247,7 +268,7 @@ details.how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
       <div class="ch"><span class="lbl" id="eqLbl">TOP 10 SLOTS</span><span class="pill sm" id="eqPill"></span></div>
       <div class="h3" id="eqTitle"></div>
       <div class="eq" id="eq"></div>
-      <div class="bigbar" id="bigBar"></div>
+      <div id="bigBar"></div>
       <div class="legend fx" id="legend"></div>
     </div>
     <div class="m3">
@@ -261,14 +282,14 @@ details.how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
 <section id="sec-trend" class="g2" style="margin-top:16px">
   <div class="card rv">
     <div class="ch"><span class="lbl">DAILY</span><span class="pill sm" id="dayPill"></span></div>
-    <div class="h3">날짜별 칸 구성</div>
-    <div class="sub">막대 하나가 하루예요. 색 비율이 바뀌면 네이버가 노출 구성을 바꾼 거예요.</div>
+    <div class="h3">날짜별 우선순위</div>
+    <div class="sub">날마다 어떤 종류가 몇 순위였는지예요. 순서가 바뀌면 네이버가 노출 우선순위를 바꾼 거예요.</div>
     <div id="daily" class="fx" style="margin-top:12px"></div>
   </div>
   <div class="card rv" style="--rd:.08s">
     <div class="ch"><span class="lbl">SHIFTS</span></div>
     <div class="h3">큰 변동 기록</div>
-    <div class="sub">전날보다 4%p 이상 바뀐 칸 종류</div>
+    <div class="sub">전날보다 순위가 바뀌거나 평균 위치가 1칸 이상 움직인 종류</div>
     <div id="chg" class="chg fx" style="margin-top:8px"></div>
   </div>
 </section>
@@ -361,7 +382,7 @@ function cmpRows(){
   const base = KWS.filter(k=>(st.grp==='전체'||k.grp===st.grp)&&(st.by==='rg' ? (st.cat==='전체'||k.cat===st.cat) : (st.rg==='전체'||k.rg===st.rg)));
   const keyf = st.by==='rg' ? (k=>k.rg) : (st.grp==='전체' ? (k=>k.grp) : (k=>k.cat));
   const groups = {}; base.forEach(k=>{ (groups[keyf(k)] ||= []).push(k.kw); });
-  return Object.entries(groups).map(([name, ks])=>{ const r = count(LAST, ks); return {name, r, n:ks.length, b:share(r,'BIO'), c:share(r,'CD'), a:share(r,'A')}; });
+  return Object.entries(groups).map(([name, ks])=>{ const r = count(LAST, ks); const p = prio(LAST, ks); return {name, r, p, ks, n:ks.length, b:share(r,'BIO'), c:share(r,'CD'), a:share(r,'A'), bf:famFirst(LAST,ks,'BIO').avg, cf:famFirst(LAST,ks,'CD').avg, af:famFirst(LAST,ks,'A').avg}; });
 }
 function count(date, kws){
   const c = {}; let n = 0, kn = 0;
@@ -370,6 +391,24 @@ function count(date, kws){
     cs.forEach(t=>{ c[t]=(c[t]||0)+1; n++; }); }
   return {c, n, kn};
 }
+// 우선순위: 종류별 '처음 나오는 칸 번호'의 평균 (안 나오면 L+1). 낮을수록 위에 먼저 나옴
+function prio(date, kws){
+  const L = st.mode==='top' ? 10 : null; const acc = {}; let kn = 0; const pos = [];
+  for (const kw of kws){ const f = D.days[date]?.[kw]; if (!f) continue; kn++;
+    let cs = cardsOf(f); if (L) cs = cs.slice(0,L); const lim = (L || cs.length) + 1;
+    const first = {}; cs.forEach((t,i)=>{ if (!(t in first)) first[t] = i+1; const P = pos[i] ||= {n:0,c:{}}; P.n++; P.c[t]=(P.c[t]||0)+1; });
+    for (const t of ORDER){ const a = acc[t] ||= {sum:0, hit:0, fsum:0}; if (t in first){ a.sum += first[t]; a.hit++; a.fsum += first[t]; } else a.sum += lim; }
+  }
+  const list = ORDER.filter(t=>acc[t]?.hit).map(t=>({t, avg: acc[t].sum/kn, rate: acc[t].hit/kn*100, fp: acc[t].fsum/acc[t].hit})).sort((x,y)=>x.avg-y.avg);
+  return {list, kn, pos: L ? pos.slice(0,10) : pos.slice(0,20)};
+}
+// 계열(블로그=BIO, 카페=CD 등)이 처음 나오는 평균 칸
+function famFirst(date, kws, fam){
+  const L = st.mode==='top' ? 10 : null; let s = 0, n = 0, hit = 0;
+  for (const kw of kws){ const f = D.days[date]?.[kw]; if (!f) continue; let cs = cardsOf(f); if (L) cs = cs.slice(0,L); const i = cs.findIndex(t=>fam.includes(t)); n++; if (i>=0){ s += i+1; hit++; } else s += (L||cs.length)+1; }
+  return n ? {avg: s/n, rate: hit/n*100} : {avg: null, rate: 0};
+}
+const fmt = v => v==null ? '-' : v.toFixed(1);
 const share = (r, types) => r.n ? [...types].reduce((s,t)=>s+(r.c[t]||0),0)/r.n*100 : 0;
 // 숫자 굴러가는 카운터
 function odo(n){ return '<span class="odo">' + String(n).split('').map((d,k)=>`<span class="dc" style="--d:${d};--k:${k}">${'0123456789'.split('').map(x=>`<span>${x}</span>`).join('')}</span>`).join('') + '</span>'; }
@@ -401,7 +440,7 @@ function syncSeg(el, key, instant){
 function initControls(){
   mkSeg($('grpSeg'), [['전체','전체'], ...GRPS.map(g=>[g,g])], 'grp', ()=>{ st.cat='전체'; st.kw=null; st.rg='전체'; if (st.grp!=='지역 업종') st.by='cat'; update(); });
   mkSeg($('modeSeg'), [['top','상위 10칸'],['all','결과 전체']], 'mode', ()=>update());
-  mkSeg($('sortSeg'), [['base','기본'],['blog','블로그순'],['cafe','카페순']], 'sort', ()=>{ const el=$('cmp'); el.classList.add('dim'); setTimeout(()=>{ compare(); el.classList.remove('dim'); replay($('sec-cat')); }, 220); });
+  mkSeg($('sortSeg'), [['base','기본'],['blog','블로그 빠른 순'],['cafe','카페 빠른 순']], 'sort', ()=>{ const el=$('cmp'); el.classList.add('dim'); setTimeout(()=>{ compare(); el.classList.remove('dim'); replay($('sec-cat')); }, 220); });
   mkSeg($('bySeg'), [['cat','업종별'],['rg','지역별']], 'by', ()=>{ const el=$('cmp'); el.classList.add('dim'); setTimeout(()=>{ compare(); el.classList.remove('dim'); replay($('sec-cat')); }, 220); });
   $('rgSel').onchange = e => { st.rg = e.target.value; st.kw = null; update(); };
   $('kwSel').onchange = e => { st.kw = e.target.value || null; update(); if (st.kw) setTimeout(()=>$('detailWrap').scrollIntoView({behavior:'smooth'}), 300); };
@@ -425,55 +464,65 @@ function update(){
   setTimeout(()=>{ render(); fx.forEach(e=>e.classList.remove('dim')); document.querySelectorAll('.rv.in').forEach(e=>replay(e)); replay($('sec-top')); }, 240);
 }
 
+function rankChips(p, max){
+  return '<div class="rkc">' + p.list.slice(0, max||6).map((x,i)=>`${i?'<span class="arrow">›</span>':''}<span class="it${i===0?' first':''}" title="${T[x.t][0]} · 평균 ${fmt(x.avg)}번째 · 등장 ${Math.round(x.rate)}%">${sq(x.t,'mini')}${T[x.t][0]}<em>${fmt(x.avg)}</em></span>`).join('') + '</div>';
+}
 function hero(){
-  const r = count(LAST, scopeKws()); const b = Math.round(share(r,'BIO'));
-  const words = [...`${scopeName()} ${modeTxt()},`.split(' ').map(w=>esc(w)), '<br>', `<em>블로그 자리 ${b}%</em>`];
+  const p = prio(LAST, scopeKws());
+  const top = p.list[0];
+  const words = [...`${scopeName()} 노출 우선순위,`.split(' ').map(w=>esc(w)), '<br>', `<em>1위 ${top?T[top.t][0]:'-'}</em>`];
   let i = 0; $('heroTitle').innerHTML = words.map(w=> w==='<br>' ? '<br>' : `<span class="w" style="--i:${i++}">${w}</span> `).join('');
-  const top = GROUPS.map(g=>[g.k, share(r,g.t)]).sort((x,y)=>y[1]-x[1]);
-  $('heroSub').textContent = `${md(LAST)} 모바일 통합검색 기준 · ${st.kw ? r.n+'칸' : '키워드 '+r.kn+'개 · '+r.n+'칸'} 분석 · 가장 큰 비중은 ${top[0][0]} ${Math.round(top[0][1])}%`;
+  $('heroSub').textContent = `${md(LAST)} 모바일 통합검색 ${modeTxt()} 기준 · 키워드 ${p.kn}개 · ` + p.list.slice(0,5).map((x,i)=>`${i+1}위 ${T[x.t][0]}(${fmt(x.avg)}번째)`).join(' → ');
   $('scopePill').textContent = scopeName();
 }
 function overview(){
-  const kws = scopeKws(); const r = count(LAST, kws);
-  let rp = null;
-  if (PREV){ const common = kws.filter(k=>D.days[PREV]?.[k] && D.days[LAST]?.[k]); const a = count(PREV, common), b = count(LAST, common); if (a.n && b.n) rp = {a, b}; }
-  const R = [134,119,104,89], svg = $('rings');
-  const defs = '<defs><filter id="gl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>' + GROUPS.map((g,i)=>`<linearGradient id="rg${i}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${g.c1}"/><stop offset="1" stop-color="${g.c2}"/></linearGradient>`).join('') + '</defs>';
-  svg.innerHTML = defs + GROUPS.map((g,i)=>{ const c = 2*Math.PI*R[i]; const p = Math.max(.002, share(r,g.t)/100);
-    return `<circle cx="145" cy="145" r="${R[i]}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/><circle class="ring" filter="url(#gl)" cx="145" cy="145" r="${R[i]}" fill="none" stroke="url(#rg${i})" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c}" style="--c:${c}px;--off:${c*(1-p)}px;--i:${i}"/>`; }).join('');
-  $('orbNum').innerHTML = odo(Math.round(share(r,'BIO'))) + '<small>%</small>';
-  $('mac').innerHTML = GROUPS.map((g,i)=>{ const p = share(r,g.t); const d = rp ? Math.round(share(rp.b,g.t)-share(rp.a,g.t)) : null;
-    const dl = d===null ? '' : d>0 ? `<small class="up">▲${d}</small>` : d<0 ? `<small class="dn">▼${-d}</small>` : '<small>±0</small>';
-    return `<div class="mrow"><div class="mtop"><span class="n"><i style="background:${g.c1}"></i>${g.k}</span><span class="v">${Math.round(p)}%${dl}</span></div><div class="track"><div class="fill" style="width:${p}%;--i:${i};background:linear-gradient(90deg,${g.c1},${g.c2})"></div></div></div>`; }).join('');
-  $('eqLbl').textContent = st.mode==='top' ? 'TOP 10 SLOTS' : 'ALL SLOTS';
-  $('eqTitle').textContent = `${modeTxt()}, 누가 자리를 가져갔나`;
-  $('eqPill').textContent = rp ? '전날 대비 비교 중' : '내일부터 전날 대비';
-  $('eq').innerHTML = GROUPS.map((g,i)=>`${i?'<span class="eqo">+</span>':''}<div class="eqi"><div class="k">${g.e}</div><div class="v" style="color:${i===0?'#c3c5ff':i===1?'#ffc069':'#f4f5fa'}">${odo(Math.round(share(r,g.t)))}<small>%</small></div></div>`).join('') + `<span class="eqo">=</span><div class="eqi"><div class="k">SLOTS</div><div class="v">${odo(r.n)}<small>칸</small></div></div>`;
-  $('bigBar').innerHTML = ORDER.filter(t=>r.c[t]).map(t=>`<div style="width:${r.c[t]/r.n*100}%;background:${T[t][1]}" title="${T[t][0]} ${Math.round(r.c[t]/r.n*100)}%"></div>`).join('');
-  $('legend').innerHTML = ORDER.filter(t=>t!=='X').map(t=>`<span class="lg"><i style="background:${T[t][1]}"></i>${T[t][0]} <b style="color:var(--t1)">${r.n?Math.round((r.c[t]||0)/r.n*100):0}%</b></span>`).join('');
-  const rows = cmpRows().map(x=>({cat:x.name, b:x.b, c:x.c, a:x.a}));
-  const card = (key, title, sub, hi, col) => { const s = rows.slice().sort((x,y)=>y[key]-x[key]); const top = s[0];
-    return `<div class="lbl">${title}</div><div class="big">${esc(top.cat)}<small>${Math.round(top[key])}%</small></div><div class="sub" style="${hi?'color:rgba(255,255,255,.85)':''}">${sub}</div><div class="rank">${s.slice(0,4).map((x,i)=>`<div class="rk"><span>${esc(x.cat)}</span><div class="b"><div class="fill" style="width:${x[key]}%;--i:${i};background:${hi?'#fff':col}"></div></div><em>${Math.round(x[key])}</em></div>`).join('')}</div>`; };
-  $('hiBlog').innerHTML = card('b','BLOG FRIENDLY','블로그로 들어갈 자리가 가장 많은 '+(st.by==='rg'?'지역':st.grp==='전체'?'분류':'카테고리'), true);
-  $('hiCafe').innerHTML = card('c','CAFE HEAVY','카페 글이 자리를 가장 많이 차지', false, 'linear-gradient(90deg,#FFB547,#FF7A45)');
-  $('hiAd').innerHTML = card('a','AD HEAVY','광고 비중이 가장 큰 '+(st.by==='rg'?'지역':st.grp==='전체'?'분류':'카테고리'), false, 'linear-gradient(90deg,#9aa0b4,#4B5163)');
+  const kws = scopeKws(); const p = prio(LAST, kws);
+  let pp = null; if (PREV){ const common = kws.filter(k=>D.days[PREV]?.[k] && D.days[LAST]?.[k]); if (common.length) pp = prio(PREV, common); }
+  const prevRank = t => pp ? pp.list.findIndex(x=>x.t===t) : -1;
+  // 링: 상위 4종류의 등장률
+  const R = [134,119,104,89], svg = $('rings'); const top4 = p.list.slice(0,4);
+  const defs = '<defs><filter id="gl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
+  svg.innerHTML = defs + top4.map((x,i)=>{ const c = 2*Math.PI*R[i]; const f = Math.max(.002, x.rate/100);
+    return `<circle cx="145" cy="145" r="${R[i]}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/><circle class="ring" filter="url(#gl)" cx="145" cy="145" r="${R[i]}" fill="none" stroke="${T[x.t][1]}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c}" style="--c:${c}px;--off:${c*(1-f)}px;--i:${i}"><title>${T[x.t][0]} 등장 ${Math.round(x.rate)}%</title></circle>`; }).join('');
+  $('orbNum').textContent = top4[0] ? T[top4[0].t][0] : '-';
+  $('orbSub').textContent = top4[0] ? `평균 ${fmt(top4[0].avg)}번째 · 등장 ${Math.round(top4[0].rate)}%` : '';
+  $('mac').innerHTML = '<div class="plist">' + p.list.map((x,i)=>{ const pr = prevRank(x.t); const mv = pr<0 ? '' : pr>i ? `<small class="up">▲${pr-i}</small>` : pr<i ? `<small class="dn">▼${i-pr}</small>` : '';
+    const L = st.mode==='top' ? 10 : 20; const w = Math.max(3, (L+1-x.avg)/L*100);
+    return `<div class="pr${i===0?' top':''}"><span class="no">${i+1}</span><span class="nm">${sq(x.t,'mini')}${T[x.t][0]} ${mv}</span><span class="vv">평균 <b>${fmt(x.avg)}</b>번째 · 등장 ${Math.round(x.rate)}%</span><div class="track"><div class="fill" style="width:${w}%;--i:${i};background:${T[x.t][1]}"></div></div></div>`; }).join('') + '</div>';
+  // 자리별 주인
+  $('eqLbl').textContent = 'BY POSITION';
+  $('eqTitle').textContent = (st.mode==='top' ? '1~10번째' : '1~20번째') + ' 칸, 자리마다 누가 나오나';
+  $('eqPill').textContent = '키워드 ' + p.kn + '개 합산';
+  $('eq').innerHTML = '';
+  $('bigBar').innerHTML = p.pos.map((P,i)=>{ const r = {c:P.c, n:P.n}; const dom = Object.entries(P.c).sort((a,b)=>b[1]-a[1])[0];
+    return `<div class="posr"><span class="pn">${i+1}번째</span>${stack(r,i)}<span class="pd">${dom?`<b>${T[dom[0]][0]}</b> ${Math.round(dom[1]/P.n*100)}%`:''}</span></div>`; }).join('');
+  $('legend').innerHTML = ORDER.filter(t=>t!=='X').map(t=>`<span class="lg"><i style="background:${T[t][1]}"></i>${T[t][0]}</span>`).join('');
+  // 강조 카드: 블로그/카페/광고가 가장 위에 뜨는 곳
+  const rows = cmpRows();
+  const dimName = st.by==='rg'?'지역':st.grp==='전체'?'분류':'카테고리';
+  const card = (key, title, sub, hi, col) => { const s = rows.filter(x=>x[key]!=null).sort((x,y)=>x[key]-y[key]); const top = s[0]; if (!top) return '';
+    const L = st.mode==='top'?10:20;
+    return `<div class="lbl">${title}</div><div class="big">${esc(top.name)}<small>평균 ${fmt(top[key])}번째</small></div><div class="sub" style="${hi?'color:rgba(255,255,255,.85)':''}">${sub}</div><div class="rank">${s.slice(0,4).map((x,i)=>`<div class="rk"><span>${esc(x.name)}</span><div class="b"><div class="fill" style="width:${Math.max(3,(L+1-x[key])/L*100)}%;--i:${i};background:${hi?'#fff':col}"></div></div><em>${fmt(x[key])}</em></div>`).join('')}</div>`; };
+  $('hiBlog').innerHTML = card('bf','BLOG FIRST','블로그가 가장 위에 뜨는 '+dimName, true);
+  $('hiCafe').innerHTML = card('cf','CAFE FIRST','카페가 가장 위에 뜨는 '+dimName, false, 'linear-gradient(90deg,#FFB547,#FF7A45)');
+  $('hiAd').innerHTML = card('af','AD FIRST','광고가 가장 위에 뜨는 '+dimName, false, 'linear-gradient(90deg,#9aa0b4,#4B5163)');
 }
 function daily(){
   const kws = scopeKws();
   $('dayPill').textContent = scopeName() + ' · ' + modeTxt();
-  $('daily').innerHTML = DATES.slice().reverse().slice(0,30).map((d,i)=>{ const r = count(d, kws); return `<div class="row"><div class="rl" style="width:110px"><b>${md(d)}</b> <span style="color:var(--t3)">${st.kw? r.n+'칸' : r.kn+'개'}</span></div>${stack(r,i)}</div>`; }).join('') || '<div class="empty">아직 기록이 없어요.</div>';
-  if (DATES.length < 3) $('daily').innerHTML += `<div class="sub" style="margin-top:10px">기록 시작 ${md(DATES[0])} · 매일 아침 한 줄씩 쌓여요.</div>`;
+  $('daily').innerHTML = DATES.slice().reverse().slice(0,30).map((d,i)=>{ const p = prio(d, kws); return `<div class="row"><div class="rl" style="width:110px"><b>${md(d)}</b> <span style="color:var(--t3)">${p.kn}개</span></div>${rankChips(p, 7)}</div>`; }).join('') || '<div class="empty">아직 기록이 없어요.</div>';
+  if (DATES.length < 3) $('daily').innerHTML += `<div class="sub" style="margin-top:10px">기록 시작 ${md(DATES[0])} · 매일 한 줄씩 쌓여요. 숫자 = 평균 몇 번째 칸</div>`;
 }
 function compare(){
   const dim = st.by==='rg' ? '지역' : st.grp==='전체' ? '분류' : '카테고리';
   $('cmpLbl').textContent = st.by==='rg' ? 'BY REGION' : st.grp==='전체' ? 'BY GROUP' : 'BY CATEGORY';
-  $('cmpTitle').textContent = dim + '별 비교';
-  $('cmpHint').textContent = md(LAST) + ' · ' + modeTxt() + (st.by==='rg' ? ' · ' + (st.cat==='전체'?'지역 업종 전체':st.cat) + ' 기준' : '') + ' · 이름을 누르면 그것만 봐요';
+  $('cmpTitle').textContent = dim + '별 우선순위';
+  $('cmpHint').textContent = md(LAST) + ' · ' + modeTxt() + (st.by==='rg' ? ' · ' + (st.cat==='전체'?'지역 업종 전체':st.cat) + ' 기준' : '') + ' · 왼쪽부터 1위 · 숫자 = 평균 몇 번째 칸 · 이름을 누르면 그것만 봐요';
   let rows = cmpRows();
-  if (st.sort==='blog') rows.sort((x,y)=>y.b-x.b); if (st.sort==='cafe') rows.sort((x,y)=>y.c-x.c);
+  if (st.sort==='blog') rows.sort((x,y)=>x.bf-y.bf); if (st.sort==='cafe') rows.sort((x,y)=>x.cf-y.cf);
   if (st.sort==='base' && st.by==='rg') rows.sort((x,y)=>y.n-x.n);
   const selName = st.by==='rg' ? st.rg : st.grp==='전체' ? st.grp : st.cat;
-  $('cmp').innerHTML = rows.map(({name,r,n,b,c},i)=>`<div class="row"><div class="rl cl${selName===name?' sel':''}" data-cc="${esc(name)}">${esc(name)} <span style="color:var(--t3);font-size:11px">${n}</span></div>${stack(r,i)}<div class="rs">블로그 <span class="g">${Math.round(b)}%</span> · 카페 <span class="o">${Math.round(c)}%</span></div></div>`).join('');
+  $('cmp').innerHTML = rows.map(({name,p,n,bf,cf})=>`<div class="row" style="align-items:flex-start"><div class="rl cl${selName===name?' sel':''}" data-cc="${esc(name)}" style="padding-top:4px">${esc(name)} <span style="color:var(--t3);font-size:11px">${n}</span></div>${rankChips(p, 6)}<div class="rs" style="padding-top:4px">블로그 <span class="g">${fmt(bf)}</span> · 카페 <span class="o">${fmt(cf)}</span>번째</div></div>`).join('');
   document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{ const v = b.dataset.cc; if (st.by==='rg') st.rg = v; else if (st.grp==='전체') { st.grp = v; st.cat='전체'; } else st.cat = v; st.kw=null; window.scrollTo({top:0,behavior:'smooth'}); update(); });
 }
 function changes(){
@@ -481,25 +530,29 @@ function changes(){
   for (let i=1;i<DATES.length;i++){
     const a = DATES[i-1], b = DATES[i];
     const common = kws.filter(k=>D.days[a]?.[k] && D.days[b]?.[k]);
-    const ra = count(a, common), rb = count(b, common);
-    if (!ra.n || !rb.n) continue;
-    const parts = ORDER.map(t=>[t, ((rb.c[t]||0)/rb.n - (ra.c[t]||0)/ra.n)*100]).filter(([t,dv])=>Math.abs(dv)>=4).sort((x,y)=>Math.abs(y[1])-Math.abs(x[1]));
-    if (parts.length) out.push(`<div><span class="d">${md(b)}</span>` + parts.map(([t,dv])=>`<span class="${dv>0?'up':'dn'}">${T[t][0]} ${dv>0?'+':''}${dv.toFixed(0)}%p</span>`).join(' · ') + '</div>');
+    if (!common.length) continue;
+    const pa = prio(a, common), pb = prio(b, common);
+    const parts = pb.list.map((x,j)=>{ const k = pa.list.findIndex(y=>y.t===x.t); const old = pa.list[k]; const dv = old ? x.avg-old.avg : 0;
+      if (k<0) return `<span class="up">${T[x.t][0]} 새로 ${j+1}위</span>`;
+      if (k!==j && j<6) return `<span class="${j<k?'up':'dn'}">${T[x.t][0]} ${k+1}위→${j+1}위</span>`;
+      if (Math.abs(dv)>=1) return `<span class="${dv<0?'up':'dn'}">${T[x.t][0]} ${dv<0?'':'+'}${dv.toFixed(1)}칸</span>`;
+      return ''; }).filter(Boolean);
+    if (parts.length) out.push(`<div><span class="d">${md(b)}</span>` + parts.join(' · ') + '</div>');
   }
-  $('chg').innerHTML = out.reverse().join('') || `<div class="empty">${DATES.length<2?'내일 두 번째 기록이 쌓이면 비교가 시작돼요.':'큰 변동 없음'}</div>`;
+  $('chg').innerHTML = out.reverse().join('') || `<div class="empty">${DATES.length<2?'내일 두 번째 기록이 쌓이면 비교가 시작돼요.':'순위 변동 없음'}</div>`;
 }
 function kwTable(animGroup){
   const det = DET();
   const ks = listKws(); const all = st.cat==='전체';
   $('kwPill').textContent = scopeName() + ' · ' + ks.length + '개';
-  let html = '<tr><th>KEYWORD</th><th>1 — 10</th><th class="hide-m">11 — 15</th><th>TOP 10 중</th></tr>';
+  let html = '<tr><th>KEYWORD</th><th>1 — 10</th><th class="hide-m">11 — 15</th><th>처음 나오는 칸</th></tr>';
   let lastCat = null, gi = 0, j = 0;
   for (const k of ks){
     const gkey = st.grp==='전체' ? k.grp+' · '+k.cat : k.cat;
     if (all && gkey!==lastCat){
       lastCat = gkey; j = 0;
       const gk = ks.filter(x=>(st.grp==='전체' ? x.grp+' · '+x.cat : x.cat)===gkey).map(x=>x.kw); const gr = count(LAST, gk); const op = st.open.has(gkey);
-      html += `<tr class="grp" data-g="${esc(gkey)}"><td style="white-space:nowrap"><span class="car${op?' op':''}">›</span>${esc(gkey)}<span class="tag">${gk.length}</span></td><td colspan="2" class="hide-m"><div style="max-width:560px">${stack(gr, gi++)}</div></td><td style="white-space:nowrap"><span class="pb g">블로그 ${Math.round(share(gr,'BIO'))}%</span><span class="pb o">카페 ${Math.round(share(gr,'CD'))}%</span></td></tr>`;
+      html += `<tr class="grp" data-g="${esc(gkey)}"><td style="white-space:nowrap"><span class="car${op?' op':''}">›</span>${esc(gkey)}<span class="tag">${gk.length}</span></td><td colspan="2" class="hide-m">${rankChips(prio(LAST, gk), 6)}</td><td style="white-space:nowrap"><span class="pb g">블로그 ${fmt(famFirst(LAST,gk,'BIO').avg)}번째</span><span class="pb o">카페 ${fmt(famFirst(LAST,gk,'CD').avg)}번째</span></td></tr>`;
     }
     if (all && !st.open.has(gkey)) continue;
     const f = D.days[LAST]?.[k.kw];
@@ -509,8 +562,8 @@ function kwTable(animGroup){
     if (!f){ html += `<tr class="kr"${rowAttr}><td>${nm}</td><td colspan="3" class="sub">수집 실패</td></tr>`; continue; }
     const cs = cardsOf(f); const cd = det[k.kw] || [];
     const tip = i => (i+1)+'번째 · '+T[cs[i]][0]+(cd[i]?.n?' · '+cd[i].n:'');
-    const blog = cs.slice(0,10).filter(t=>'BIO'.includes(t)).length, cafe = cs.slice(0,10).filter(t=>'CD'.includes(t)).length;
-    html += `<tr class="kr"${rowAttr}><td style="white-space:nowrap;padding-left:${all?'26px':'8px'}">${nm}</td><td><div class="sqs">${cs.slice(0,10).map((t,i)=>sq(t,'',undefined,tip(i))).join('')}</div></td><td class="hide-m"><div class="sqs">${cs.slice(10,15).map((t,i)=>sq(t,'fd',undefined,tip(i+10))).join('')}</div></td><td style="white-space:nowrap"><span class="pb g">블로그 ${blog}</span><span class="pb o">카페 ${cafe}</span></td></tr>`;
+    const bi = cs.findIndex(t=>'BIO'.includes(t)), ci = cs.findIndex(t=>'CD'.includes(t)); const blog = bi<0?'없음':(bi+1)+'번째', cafe = ci<0?'없음':(ci+1)+'번째';
+    html += `<tr class="kr"${rowAttr}><td style="white-space:nowrap;padding-left:${all?'26px':'8px'}">${nm}</td><td><div class="sqs">${cs.slice(0,10).map((t,i)=>sq(t,'',undefined,tip(i))).join('')}</div></td><td class="hide-m"><div class="sqs">${cs.slice(10,15).map((t,i)=>sq(t,'fd',undefined,tip(i+10))).join('')}</div></td><td style="white-space:nowrap"><span class="pb g">블로그 첫 ${blog}</span><span class="pb o">카페 첫 ${cafe}</span></td></tr>`;
   }
   $('kwTable').innerHTML = html;
   document.querySelectorAll('[data-g]').forEach(r=>r.onclick=()=>{ const g=r.dataset.g; const opening = !st.open.has(g); opening?st.open.add(g):st.open.delete(g); kwTable(opening?g:null); });
