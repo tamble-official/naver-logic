@@ -137,7 +137,7 @@ select{font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid #d1d
 </div>
 
 <div class="panel">
-  <div class="ph"><div><h2>키워드별 칸 순서</h2><div class="hint">위에서부터 나오는 순서대로 왼쪽→오른쪽. 흐린 칸 = 11~15번째. 키워드를 누르면 상세가 열립니다.</div></div><span class="scope" id="scope3"></span></div>
+  <div class="ph"><div><h2>키워드별 칸 순서</h2><div class="hint">위에서부터 나오는 순서대로 왼쪽→오른쪽. 흐린 칸 = 11~15번째. 업종 줄을 누르면 펼쳐지고, 키워드를 누르면 상세가 열립니다.</div></div><span class="scope" id="scope3"></span></div>
   <div style="overflow-x:auto"><table class="tbl" id="kwTable"></table></div>
 </div>
 
@@ -171,7 +171,7 @@ const GROUPS = [
 const KWS = D.kws; const CATS = [...new Set(KWS.map(k=>k.cat))];
 const DATES = Object.keys(D.days).sort();
 const LAST = DATES[DATES.length-1], PREV = DATES[DATES.length-2];
-const st = {cat:'전체', kw:null, mode:'top', rg:'전체', sort:'base'};
+const st = {cat:'전체', kw:null, mode:'top', rg:'전체', sort:'base', open:new Set()};
 const $ = id => document.getElementById(id);
 const esc = s => String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const isCard = t => t.length===1 && T[t];
@@ -259,8 +259,15 @@ function kwTable(){
   const ks = listKws();
   let html = '<tr><th>키워드</th><th>1~10번째 칸</th><th class="hide-m">11~15번째</th><th>상위 10칸 중</th></tr>';
   let lastCat = null;
+  const all = st.cat==='전체';
   for (const k of ks){
-    if (st.cat==='전체' && k.cat!==lastCat){ html += `<tr class="grp"><td colspan="4">${esc(k.cat)}</td></tr>`; lastCat = k.cat; }
+    if (all && k.cat!==lastCat){
+      lastCat = k.cat;
+      const gk = ks.filter(x=>x.cat===k.cat).map(x=>x.kw); const gr = count(LAST, gk);
+      const op = st.open.has(k.cat);
+      html += `<tr class="grp" data-g="${esc(k.cat)}" style="cursor:pointer"><td>${op?'▾':'▸'} ${esc(k.cat)} <span class="tag">${gk.length}개</span></td><td colspan="2" class="hide-m"><div style="max-width:520px">${stack(gr)}</div></td><td style="white-space:nowrap"><span class="pill g">블로그 ${Math.round(share(gr,'BIO'))}%</span><span class="pill o">카페 ${Math.round(share(gr,'CD'))}%</span></td></tr>`;
+    }
+    if (all && !st.open.has(k.cat)) continue;
     const f = D.days[LAST]?.[k.kw];
     const nm = `<a class="kwl" data-kd="${esc(k.kw)}">${esc(k.kw)}</a><span class="tag">${k.rg==='지역'?'청주':'전국'}</span>`;
     if (!f){ html += `<tr><td>${nm}</td><td colspan="3" class="hint">수집 실패</td></tr>`; continue; }
@@ -272,6 +279,7 @@ function kwTable(){
     html += `<tr><td style="white-space:nowrap">${nm}</td><td><div class="sqs">${top}</div></td><td class="hide-m"><div class="sqs">${more}</div></td><td style="white-space:nowrap"><span class="pill g">블로그 ${blog}</span><span class="pill o">카페 ${cafe}</span></td></tr>`;
   }
   $('kwTable').innerHTML = html;
+  document.querySelectorAll('[data-g]').forEach(r=>r.onclick=()=>{ const g=r.dataset.g; st.open.has(g)?st.open.delete(g):st.open.add(g); kwTable(); });
   document.querySelectorAll('[data-kd]').forEach(a=>a.onclick=()=>{ st.kw=a.dataset.kd; render(); $('detailWrap').scrollIntoView({behavior:'smooth'}); });
 }
 function detail(){
