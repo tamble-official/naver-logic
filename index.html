@@ -251,9 +251,59 @@ svg.leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;o
  .hide-m{display:none}
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.panel{opacity:1;filter:none;transform:none}}
+
+/* ---------- login */
+body.locked{overflow:hidden}
+body.locked .app{visibility:hidden}
+.login{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:radial-gradient(700px 480px at 50% 45%,rgba(91,95,239,.16),transparent 70%),#05060b;transition:opacity .9s var(--ease),filter .9s var(--ease)}
+.login.out{opacity:0;filter:blur(14px);pointer-events:none}
+.login canvas{position:absolute;left:50%;top:50%;width:min(720px,120vw);aspect-ratio:1;transform:translate(-50%,-50%);opacity:.55;pointer-events:none}
+.lbox{position:relative;width:min(360px,88vw);text-align:center}
+.lbox > *{opacity:0;filter:blur(10px);transform:translateY(12px);animation:lin 1.1s var(--ease) forwards;animation-delay:calc(var(--i)*90ms + .2s)}
+@keyframes lin{to{opacity:1;filter:none;transform:none}}
+.lbox .lg{width:46px;height:46px;border-radius:13px;margin:0 auto 18px;background:linear-gradient(135deg,#5B5FEF,#9B7BFF);display:grid;place-items:center;font-weight:900;font-size:20px;box-shadow:0 10px 40px rgba(91,95,239,.55),inset 0 1px 0 rgba(255,255,255,.3)}
+.lbox .ey{font-size:11.5px;letter-spacing:3px;color:var(--tb2);font-weight:700}
+.lbox h1{font-size:30px;font-weight:300;letter-spacing:-.6px;margin:8px 0 6px}
+.lbox h1 em{font-style:normal;color:var(--tb2);font-weight:500}
+.lbox .ds{font-size:13px;color:var(--t2);margin-bottom:34px}
+.fld{position:relative;display:block;margin:0 0 18px;text-align:left}
+.fld span{display:block;font-size:11px;color:var(--t3);letter-spacing:1.4px;font-weight:700;margin-bottom:6px}
+.fld input{width:100%;background:transparent;border:0;border-bottom:1px solid rgba(255,255,255,.22);padding:10px 2px;color:var(--t1);font-size:15px;font-family:inherit;outline:none}
+.fld input:-webkit-autofill{-webkit-text-fill-color:#eef0f8;transition:background-color 9999s}
+.fld::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:linear-gradient(90deg,#5B5FEF,#B58CFF);transform:scaleX(0);transform-origin:left;transition:transform .5s var(--ease)}
+.fld:focus-within::after{transform:scaleX(1)}
+.keep{display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--t2);margin:4px 0 22px;cursor:pointer;user-select:none}
+.keep input{accent-color:#5B5FEF;width:15px;height:15px}
+.lbtn{width:100%;border:0;border-radius:14px;padding:14px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(120deg,#5B5FEF,#7D6BFF);box-shadow:0 10px 30px rgba(91,95,239,.45),inset 0 1px 0 rgba(255,255,255,.25);cursor:pointer;position:relative;overflow:hidden;transition:transform .25s var(--ease)}
+.lbtn:hover{transform:translateY(-1px)}
+.lbtn::after{content:'';position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.25) 50%,transparent 65%);background-size:250% 100%;animation:sweep2 4s var(--ease2) infinite}
+@keyframes sweep2{0%{background-position:150% 0}60%,100%{background-position:-100% 0}}
+.lerr{height:18px;font-size:12.5px;color:#fb7185;margin-top:12px;opacity:0;transition:opacity .3s}
+.lbox > .lerr{animation:none;filter:none;transform:none;opacity:0}
+.lbox > .lerr.on{opacity:1}
+.lbox.shake{animation:shake .45s var(--ease)}
+@keyframes shake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.lfoot{position:absolute;bottom:26px;left:0;right:0;text-align:center;font-size:11.5px;color:var(--t3)}
+.logout{margin-top:10px;border:1px solid var(--line2);background:transparent;color:var(--t2);border-radius:8px;padding:5px 10px;font-size:11.5px;cursor:pointer}
+.logout:hover{color:#fff;border-color:rgba(143,147,255,.6)}
 </style>
 </head>
-<body>
+<body class="locked">
+<div class="login" id="login">
+  <canvas id="lorb"></canvas>
+  <form class="lbox" id="lform" autocomplete="on">
+    <div class="lg" style="--i:0">T</div>
+    <div class="ey" style="--i:1">TAMBLE · LOGIC RADAR</div>
+    <h1 style="--i:2">네이버 노출 <em>우선순위</em></h1>
+    <div class="ds" style="--i:3">탬블 내부용 대시보드예요. 계정으로 로그인해 주세요</div>
+    <label class="fld" style="--i:4"><span>ID</span><input id="lid" name="username" autocomplete="username" required></label>
+    <label class="fld" style="--i:5"><span>PASSWORD</span><input id="lpw" name="password" type="password" autocomplete="current-password" required></label>
+    <label class="keep" style="--i:6"><input type="checkbox" id="lkeep" checked>로그인 상태 유지 (30일)</label>
+    <button class="lbtn" style="--i:7" type="submit">로그인</button>
+    <div class="lerr" id="lerr">아이디 또는 비밀번호가 맞지 않아요</div>
+  </form>
+  <div class="lfoot">TAMBLE CORPORATION</div>
+</div>
 <div class="app">
 <aside class="side">
   <div class="brand"><span class="lg">T</span><div>TAMBLE<small>Logic Radar</small></div></div>
@@ -267,7 +317,7 @@ svg.leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;o
     <a href="#p-hist" data-s="p-hist"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>날짜별 변화</span></a>
   </nav>
   <nav class="nav" id="navGrp"><div class="cap">분류</div></nav>
-  <div class="status"><div class="r"><span class="dot"></span>자동 수집 중</div><b id="stUpd"></b><div class="s" id="stNext"></div></div>
+  <div class="status"><div class="r"><span class="dot"></span>자동 수집 중</div><b id="stUpd"></b><div class="s" id="stNext"></div><button class="logout" id="logout">로그아웃</button></div>
 </aside>
 
 <main class="main">
@@ -378,8 +428,38 @@ svg.leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;o
   <table class="tbl dl" id="dList"></table>
 </aside>
 
-<script src="data.js"></script>
 <script>
+// ---------- 로그인 (정적 사이트용 간단 잠금: 아이디·비번은 해시로만 비교)
+const AUTH_HASH = '3b8f0fad9750e0e51ea0440977ecf99db19dcc0fe8035f3f4f2d50d941381c54';
+const AUTH_KEY = 'lr_auth_v1';
+async function sha(s){ const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+function authed(){ try { const v = JSON.parse(localStorage.getItem(AUTH_KEY) || sessionStorage.getItem(AUTH_KEY) || 'null'); return v && v.h === AUTH_HASH && (!v.exp || v.exp > Date.now()); } catch(e){ return false; } }
+function loadData(){ return new Promise((res, rej)=>{ const s = document.createElement('script'); s.src = 'data.js?v=' + Date.now(); s.onload = res; s.onerror = rej; document.head.appendChild(s); }); }
+async function unlock(){
+  await loadData();
+  document.body.classList.remove('locked');
+  boot();
+  const lg = document.getElementById('login'); lg.classList.add('out'); setTimeout(()=>{ lg.remove(); }, 1000);
+}
+(function loginUI(){
+  const cv = document.getElementById('lorb'), ctx = cv.getContext('2d'); const dpr = Math.min(2, devicePixelRatio||1);
+  const sz = () => { const s = cv.clientWidth; cv.width = s*dpr; cv.height = s*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); return s; }; let S = sz(); addEventListener('resize', ()=>{ S = sz(); });
+  let t = 0; const N = 1800, P = []; const g = Math.PI*(3-Math.sqrt(5)); for (let i=0;i<N;i++){ const y = 1-(i+.5)/N*2, r = Math.sqrt(1-y*y), a = i*g; P.push([Math.cos(a)*r, y, Math.sin(a)*r]); }
+  (function f(){ if (!document.getElementById('lorb')) return; ctx.clearRect(0,0,S,S); const R = S*.33, ca = Math.cos(t), sa = Math.sin(t), ct = Math.cos(.4), stt = Math.sin(.4);
+    for (const p of P){ const n = Math.sin(p[0]*2.4+t*1.4)*Math.cos(p[1]*2.8-t)*.12; const rr = 1+n; const x = p[0]*rr, y = p[1]*rr, z = p[2]*rr; const x2 = x*ca - z*sa, z2 = x*sa + z*ca, y3 = y*ct - z2*stt, z3 = y*stt + z2*ct; const rim = Math.pow(1-Math.abs(z3/rr), 2.6); const a = (.03+.7*rim)*(z3>0?1:.5); if (a<.03) continue; const m = (y3/rr+1)/2; ctx.fillStyle = 'rgba(' + (130+m*100|0) + ',' + (130-m*10|0) + ',255,' + a.toFixed(3) + ')'; const s = .5+1.2*rim; ctx.fillRect(S/2+x2*R-s/2, S/2+y3*R-s/2, s, s); }
+    t += .004; requestAnimationFrame(f); })();
+  const form = document.getElementById('lform');
+  form.onsubmit = async e => { e.preventDefault();
+    const h = await sha('logic-radar|' + document.getElementById('lid').value.trim() + '|' + document.getElementById('lpw').value);
+    if (h !== AUTH_HASH){ document.getElementById('lerr').classList.add('on'); form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake'); document.getElementById('lpw').value=''; document.getElementById('lpw').focus(); return; }
+    const keep = document.getElementById('lkeep').checked; const v = JSON.stringify({h, exp: keep ? Date.now()+30*86400e3 : 0});
+    (keep ? localStorage : sessionStorage).setItem(AUTH_KEY, v);
+    form.querySelector('.lbtn').textContent = '들어가는 중…'; unlock();
+  };
+  if (authed()) unlock(); else setTimeout(()=>document.getElementById('lid').focus(), 700);
+})();
+
+function boot(){
 const D = window.DATA;
 const T = {
  B:['블로그','#5B5FEF',0,'블'], I:['인플루언서','#9B7BFF',0,'인'], O:['공식 블로그','#C3C5FF',1,'공'],
@@ -728,6 +808,8 @@ document.querySelectorAll('.panel').forEach(c=>c.addEventListener('pointermove',
 (function(){ const links = [...document.querySelectorAll('#navMain a')]; const io2 = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting) links.forEach(l=>l.classList.toggle('on', l.dataset.s===e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'}); ['hero','p-pos','p-race','p-cmp','p-kw','p-hist'].forEach(id=>io2.observe($(id))); })();
 addEventListener('resize', ()=>{ clearTimeout(window.__rz); window.__rz = setTimeout(()=>{ lineChart(); leads(); }, 200); });
 setTimeout(()=>{ const s = document.createElement('script'); s.src = 'detail.js?v=' + D.updated; document.body.appendChild(s); }, 800);
+$('logout').onclick = () => { localStorage.removeItem(AUTH_KEY); sessionStorage.removeItem(AUTH_KEY); location.reload(); };
+}
 </script>
 </body>
 </html>
