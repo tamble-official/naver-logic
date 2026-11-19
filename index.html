@@ -4,342 +4,379 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<meta name="theme-color" content="#07070d">
-<title>Logic Radar · 네이버 통합검색 로직 분석 | TAMBLE</title>
+<meta name="theme-color" content="#05060b">
+<title>Logic Radar · 네이버 통합검색 노출 우선순위 | TAMBLE</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
 <style>
 :root{
- --bg:#07070d; --t1:#f4f5fa; --t2:#a3a8bb; --t3:#6b7186;
- --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.12);
- --tb:#5B5FEF; --ease:cubic-bezier(.16,1,.3,1); --ease2:cubic-bezier(.65,0,.35,1);
- --grad:linear-gradient(120deg,#5B5FEF 0%,#7D6BFF 60%,#A88BFF 100%);
+ --bg:#05060b; --bg2:#080a12; --t1:#eef0f8; --t2:#9aa0b6; --t3:#5f6579; --t4:#3b4053;
+ --line:rgba(255,255,255,.06); --line2:rgba(255,255,255,.1);
+ --tb:#5B5FEF; --tb2:#8F93FF; --tb3:#c9cbff;
+ --ease:cubic-bezier(.16,1,.3,1); --ease2:cubic-bezier(.65,0,.35,1);
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--t1);font-family:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;font-feature-settings:"tnum";overflow-x:hidden}
+body{margin:0;background:var(--bg);color:var(--t1);font-family:"Pretendard Variable",Pretendard,-apple-system,"Malgun Gothic",sans-serif;font-size:13.5px;line-height:1.5;-webkit-font-smoothing:antialiased;font-feature-settings:"tnum";overflow-x:hidden}
 ::selection{background:rgba(91,95,239,.5)}
-/* aurora */
-.aurora{position:fixed;inset:-20vh -10vw;z-index:-1;pointer-events:none;overflow:hidden}
-.aurora i{position:absolute;border-radius:50%;filter:blur(110px);opacity:.55;will-change:transform}
-.aurora i:nth-child(1){width:48vw;height:48vw;left:2vw;top:-6vw;background:#3b3fd8;animation:drift1 26s var(--ease2) infinite alternate}
-.aurora i:nth-child(2){width:38vw;height:38vw;right:4vw;top:6vw;background:#6a4cff;opacity:.35;animation:drift2 32s var(--ease2) infinite alternate}
-.aurora i:nth-child(3){width:42vw;height:42vw;left:30vw;bottom:-14vw;background:#2a2fb0;opacity:.3;animation:drift3 38s var(--ease2) infinite alternate}
-@keyframes drift1{to{transform:translate(8vw,6vw) scale(1.12)}}
-@keyframes drift2{to{transform:translate(-10vw,8vw) scale(.9)}}
-@keyframes drift3{to{transform:translate(6vw,-8vw) scale(1.15)}}
-.grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.06;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
-.wrap{max-width:1180px;margin:0 auto;padding:22px 20px 140px}
-a{color:#b9bbff}
-/* reveal */
-.rv{opacity:0;filter:blur(12px);transform:translateY(18px);transition:opacity 1s var(--ease),filter 1s var(--ease),transform 1.1s var(--ease);transition-delay:var(--rd,0s)}
-.rv.in{opacity:1;filter:blur(0);transform:none}
-.fx{transition:opacity .28s var(--ease),filter .28s var(--ease)}
-.fx.dim{opacity:.18;filter:blur(8px)}
-/* top */
-.topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:.2px}
-.logo{width:30px;height:30px;border-radius:9px;background:var(--grad);display:grid;place-items:center;font-weight:900;font-size:15px;box-shadow:0 8px 28px rgba(91,95,239,.45),inset 0 1px 0 rgba(255,255,255,.35)}
-.brand .sep{color:var(--t3);font-weight:400}
-.brand .nm{color:var(--t2);font-weight:600}
-.pills{display:flex;gap:8px;flex-wrap:wrap}
-.pill{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line2);background:rgba(255,255,255,.03);border-radius:999px;padding:5px 12px;font-size:12.5px;color:var(--t2);white-space:nowrap;backdrop-filter:blur(10px)}
-.pill .dot{width:6px;height:6px;border-radius:50%;background:#34d399;animation:breathe 3.2s ease-in-out infinite}
+a{color:var(--tb3);text-decoration:none}
+button{font-family:inherit}
+.num{font-weight:300;letter-spacing:-.02em}
+/* ---------- layout */
+.app{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{position:sticky;top:0;height:100vh;padding:22px 16px;border-right:1px solid var(--line);background:linear-gradient(180deg,#07080f,#05060b);display:flex;flex-direction:column;gap:18px;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;padding:0 6px;font-weight:700;letter-spacing:.3px}
+.brand .lg{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#5B5FEF,#9B7BFF);display:grid;place-items:center;font-weight:900;font-size:13px;box-shadow:0 6px 22px rgba(91,95,239,.45)}
+.brand small{display:block;font-weight:500;color:var(--t3);font-size:11px;letter-spacing:.2px;margin-top:-2px}
+.nav{display:flex;flex-direction:column;gap:2px;position:relative}
+.nav .cap{font-size:10.5px;color:var(--t3);letter-spacing:1.6px;font-weight:700;padding:10px 10px 6px}
+.nav a,.nav button{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 10px;border-radius:10px;color:var(--t2);font-size:13px;border:0;background:transparent;cursor:pointer;text-align:left;transition:color .3s var(--ease),background-color .3s var(--ease)}
+.nav a:hover,.nav button:hover{color:var(--t1);background:rgba(255,255,255,.03)}
+.nav .on{color:#fff;background:rgba(91,95,239,.16)}
+.nav .on::before{content:'';position:absolute;left:-16px;top:8px;bottom:8px;width:3px;border-radius:3px;background:var(--tb)}
+.nav svg{width:16px;height:16px;opacity:.85;flex:none}
+.nav .l{display:flex;align-items:center;gap:10px}
+.nav .c{font-size:11px;color:var(--t3)}
+.status{margin-top:auto;padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.02)}
+.status .r{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2)}
+.status .dot{width:6px;height:6px;border-radius:50%;background:#34d399;box-shadow:0 0 10px #34d399;animation:breathe 3s ease-in-out infinite}
 @keyframes breathe{50%{opacity:.35}}
-.pill.sm{padding:3px 10px;font-size:11.5px}
-.pill.ac{border-color:rgba(91,95,239,.45);color:#c9cbff;background:rgba(91,95,239,.12)}
-/* hero */
-.hero{margin:44px 0 26px}
-.eyebrow{font-size:12px;letter-spacing:2.6px;color:#9ea2ff;font-weight:700}
-h1{font-size:clamp(28px,4.3vw,44px);line-height:1.18;margin:10px 0 12px;font-weight:800;letter-spacing:-1.4px}
-h1 .w{display:inline-block;opacity:0;filter:blur(10px);transform:translateY(.35em);transition:opacity .9s var(--ease),filter .9s var(--ease),transform 1s var(--ease);transition-delay:calc(var(--i)*70ms)}
-.go h1 .w{opacity:1;filter:blur(0);transform:none}
-h1 em{font-style:normal;background:linear-gradient(100deg,#7f83ff 0%,#b9a4ff 35%,#7f83ff 70%,#b9a4ff 100%);background-size:200% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sheen 9s linear infinite}
-@keyframes sheen{to{background-position:-200% 0}}
-.lead{color:var(--t2);font-size:15px;margin:0;max-width:760px}
-/* toolbar */
-.toolbar{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:20px;border:1px solid var(--line);background:rgba(16,17,28,.55);backdrop-filter:blur(18px);margin-bottom:18px}
-.trow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.tl{font-size:11px;color:var(--t3);font-weight:700;letter-spacing:1px;width:58px;flex:none}
-#rgSel{min-width:150px}
-.catrow-hide{display:none!important}
-.chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
-.chip{border:1px solid var(--line2);background:rgba(255,255,255,.02);border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer;color:var(--t2);font-family:inherit;white-space:nowrap;transition:color .3s var(--ease),background-color .35s var(--ease),border-color .35s var(--ease),transform .25s var(--ease),box-shadow .35s var(--ease)}
-.chip:hover{color:var(--t1);border-color:rgba(155,140,255,.45)}
-.chip:active{transform:scale(.96)}
-.chip.on{background-color:#5B5FEF;border-color:#6d71ff;color:#fff;font-weight:700;box-shadow:0 6px 22px rgba(91,95,239,.38),inset 0 1px 0 rgba(255,255,255,.25)}
-.seg{position:relative;display:inline-flex;padding:3px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
-.seg .thumb{position:absolute;top:3px;bottom:3px;left:0;border-radius:9px;background:rgba(255,255,255,.11);box-shadow:inset 0 1px 0 rgba(255,255,255,.12);transition:transform .45s var(--ease),width .45s var(--ease)}
-.seg button{position:relative;z-index:1;border:0;background:transparent;color:var(--t2);padding:6px 12px;font-size:12.5px;border-radius:9px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:color .3s}
+.status b{display:block;font-size:13px;color:var(--t1);margin:6px 0 2px;font-weight:600}
+.status .s{font-size:11.5px;color:var(--t3)}
+.main{min-width:0;position:relative}
+/* ---------- top bar */
+.top{position:sticky;top:0;z-index:15;display:flex;align-items:center;gap:12px;padding:14px 28px;background:rgba(5,6,11,.72);backdrop-filter:blur(16px);border-bottom:1px solid var(--line)}
+.crumb{font-size:13px;color:var(--t3);white-space:nowrap}
+.crumb b{color:var(--t1);font-weight:600}
+.top .sp{flex:1}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+select{font-family:inherit;font-size:12.5px;padding:7px 10px;border:1px solid var(--line2);border-radius:10px;background:#0b0d17;color:var(--t1);outline:none;max-width:220px}
+.seg{position:relative;display:inline-flex;padding:3px;border-radius:10px;background:rgba(255,255,255,.035);border:1px solid var(--line)}
+.seg .thumb{position:absolute;top:3px;bottom:3px;left:0;border-radius:7px;background:var(--tb);box-shadow:0 4px 16px rgba(91,95,239,.45);transition:transform .45s var(--ease),width .45s var(--ease)}
+.seg button{position:relative;z-index:1;border:0;background:transparent;color:var(--t2);padding:5px 11px;font-size:12px;border-radius:7px;cursor:pointer;white-space:nowrap;transition:color .3s}
 .seg button.on{color:#fff;font-weight:700}
-select{font-family:inherit;font-size:13px;padding:7px 12px;border:1px solid var(--line2);border-radius:12px;background:#10111b;color:var(--t1);min-width:210px;outline:none;transition:border-color .3s}
-select:hover{border-color:rgba(155,140,255,.45)}
-/* cards */
-.card{position:relative;border-radius:22px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.012));backdrop-filter:blur(18px);padding:20px 22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 24px 70px rgba(0,0,0,.35);min-width:0;isolation:isolate}
-.card::before{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;opacity:0;transition:opacity .5s var(--ease);background:radial-gradient(520px circle at var(--mx,50%) var(--my,50%),rgba(110,114,255,.10),transparent 45%)}
-.card::after{content:'';position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;padding:1px;opacity:0;transition:opacity .5s var(--ease);background:radial-gradient(260px circle at var(--mx,50%) var(--my,50%),rgba(168,150,255,.75),transparent 60%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
-.card:hover::before,.card:hover::after{opacity:1}
-.ch{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px}
-.lbl{font-size:11px;letter-spacing:1.9px;color:var(--t3);font-weight:700}
-.h3{font-size:17px;font-weight:800;letter-spacing:-.3px;margin:2px 0 0}
-.sub{color:var(--t3);font-size:12.5px;margin-top:3px}
-section{scroll-margin-top:20px}
-.gh{display:grid;grid-template-columns:380px 1fr;gap:16px}
-.col{display:flex;flex-direction:column;gap:16px;min-width:0}
-/* orb */
-.orbbox{position:relative;width:290px;height:290px;margin:14px auto 10px}
-.orbbox svg{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg);overflow:visible}
-.orbbox canvas{position:absolute;left:50%;top:50%;width:60%;height:60%;transform:translate(-50%,-50%);border-radius:50%}
-.oc{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.oc .big2{font-size:46px;font-weight:800;letter-spacing:-1.5px;line-height:1;text-shadow:0 6px 40px rgba(91,95,239,.8);display:flex;align-items:flex-start}
-.oc .big2 small{font-size:20px;margin-top:6px;margin-left:2px;opacity:.8}
-.oc span.c{font-size:12px;color:#cfd1ff;margin-top:6px;letter-spacing:.3px}
-.ring{stroke-dashoffset:var(--c);transition:stroke-dashoffset 1.8s var(--ease);transition-delay:calc(var(--i)*140ms + .1s)}
-.go .ring{stroke-dashoffset:var(--off)}
-.mac{display:flex;flex-direction:column;gap:9px;margin-top:6px}
-.mrow{padding:10px 12px;border-radius:14px;background:rgba(255,255,255,.03);border:1px solid var(--line);transition:background-color .3s}
-.mrow:hover{background:rgba(255,255,255,.055)}
-.mtop{display:flex;justify-content:space-between;align-items:center;font-size:13px}
-.mtop .n{display:flex;align-items:center;gap:8px;font-weight:600}
-.mtop .n i{width:8px;height:8px;border-radius:50%}
-.mtop .v{font-weight:800}
-.mtop .v small{color:var(--t3);font-weight:600;margin-left:6px;font-size:11.5px}
-.track{height:5px;border-radius:9px;background:rgba(255,255,255,.07);margin-top:8px;overflow:hidden}
-.fill{height:100%;border-radius:9px;transform:scaleX(0);transform-origin:left;transition:transform 1.4s var(--ease);transition-delay:calc(var(--i,0)*90ms + .15s)}
-.go .fill{transform:scaleX(1)}
+.chiprow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 28px 0}
+.chiprow::-webkit-scrollbar{display:none}
+.chip{border:1px solid var(--line2);background:transparent;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;color:var(--t2);white-space:nowrap;transition:all .3s var(--ease)}
+.chip:hover{color:var(--t1);border-color:rgba(143,147,255,.5)}
+.chip.on{background:rgba(91,95,239,.18);border-color:rgba(124,128,255,.7);color:#fff}
+.chip i{font-style:normal;opacity:.5;font-size:11px;margin-left:3px}
+/* ---------- hero (COREVIS style) */
+.hero{position:relative;height:min(860px,calc(100vh - 60px));min-height:700px;overflow:hidden}
+.hero .glow{position:absolute;inset:0;background:radial-gradient(600px 420px at 50% 52%,rgba(91,95,239,.18),transparent 70%),radial-gradient(900px 500px at 50% 120%,rgba(155,123,255,.10),transparent 70%);pointer-events:none}
+.hdate{position:absolute;top:34px;left:0;right:0;text-align:center;font-size:12px;color:var(--t2);letter-spacing:.5px}
+.htitle{position:absolute;top:56px;left:0;right:0;text-align:center;font-size:clamp(26px,3.2vw,40px);font-weight:300;letter-spacing:-.8px;margin:0}
+.htitle em{font-style:normal;color:var(--tb2);font-weight:500}
+.htitle .w{display:inline-block;opacity:0;filter:blur(10px);transform:translateY(10px);transition:opacity 1s var(--ease),filter 1s var(--ease),transform 1.1s var(--ease);transition-delay:calc(var(--i)*80ms + .1s)}
+.go .htitle .w{opacity:1;filter:none;transform:none}
+.stage{position:absolute;left:50%;top:52%;width:min(520px,46vw);aspect-ratio:1;transform:translate(-50%,-50%)}
+.stage canvas{position:absolute;inset:0;width:100%;height:100%}
+.stage svg.hud{position:absolute;inset:-6%;width:112%;height:112%;overflow:visible}
+.hud .spin{transform-origin:50% 50%;animation:spin 60s linear infinite}
+.hud .spin2{transform-origin:50% 50%;animation:spin 90s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.hud .arcd{stroke-dasharray:var(--len);stroke-dashoffset:var(--len);transition:stroke-dashoffset 2.2s var(--ease) .4s}
+.go .hud .arcd{stroke-dashoffset:0}
+svg.leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;overflow:visible}
+.leads path{fill:none;stroke:rgba(255,255,255,.28);stroke-width:1;stroke-dasharray:var(--l);stroke-dashoffset:var(--l);transition:stroke-dashoffset 1.6s var(--ease) .9s}
+.go .leads path{stroke-dashoffset:0}
+.leads circle{fill:#fff;opacity:0;transition:opacity .6s .9s}
+.go .leads circle{opacity:.9}
+.hcol{position:absolute;top:150px;width:min(300px,24vw)}
+.hcol.l{left:40px}.hcol.r{right:40px}
+.cap2{font-size:11.5px;color:var(--t3);margin-bottom:12px;letter-spacing:.2px}
+.pitem{position:relative;padding:2px 0 8px;margin-bottom:4px}
+.pitem .row1{display:flex;justify-content:space-between;align-items:baseline}
+.pitem .nm{font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px}
+.pitem .nm .rk{font-size:11px;color:var(--t3);font-weight:600;width:14px}
+.pitem .v{font-size:22px}
+.pitem .v small{font-size:11px;color:var(--t3);margin-left:2px}
+.pitem .sub{font-size:11.5px;color:var(--t3);display:flex;justify-content:space-between;margin-top:2px}
+.pulse{display:block;width:100%;height:18px;margin-top:4px;overflow:visible}
+.pulse path.bg{stroke:rgba(255,255,255,.12)}
+.pulse path.fg{stroke:var(--c);stroke-dasharray:24 400;animation:run 3.2s linear infinite;animation-delay:var(--dl)}
+@keyframes run{from{stroke-dashoffset:24}to{stroke-dashoffset:-400}}
+.titem{display:grid;grid-template-columns:58px 1fr auto;gap:10px;align-items:center;padding:7px 0;font-size:12.5px;color:var(--t2)}
+.titem .t{color:var(--t3);font-size:12px}
+.titem b{color:var(--t1);font-weight:600}
+.titem i{width:6px;height:6px;border-radius:50%;display:block}
+.bigstat{position:absolute;left:40px;bottom:46px;width:min(300px,26vw)}
+.bigstat .cap2{margin-bottom:6px}
+.bigstat .n{font-size:38px;line-height:1}
+.bigstat .n small{font-size:14px;color:var(--t2);margin-left:4px}
+.bigstat .s{font-size:12px;color:var(--t2);margin:8px 0 12px}
+.spark{display:flex;align-items:flex-end;justify-content:space-between;height:34px}
+.spark i{width:3px;background:linear-gradient(180deg,#fff,#8F93FF);border-radius:1px;transform-origin:bottom;transform:scaleY(0);transition:transform 1s var(--ease);transition-delay:calc(var(--k)*25ms + .5s)}
+.go .spark i{transform:scaleY(1)}
+.spark-l{display:flex;justify-content:space-between;font-size:11px;color:var(--t3);margin-top:6px}
+.rbox{position:absolute;right:40px;bottom:46px;width:min(320px,26vw)}
+.hl{display:flex;align-items:center;gap:8px;font-size:12px;color:#ffb15c;margin-bottom:4px}
+.rbig{font-size:19px;font-weight:600;margin:2px 0}
+.rsub{font-size:12px;color:var(--t2)}
+.btns{display:flex;gap:8px;margin-top:12px}
+.btn{border:0;border-radius:999px;padding:7px 16px;font-size:12.5px;font-weight:700;cursor:pointer;transition:transform .25s var(--ease),box-shadow .3s}
+.btn.p{background:var(--tb);color:#fff;box-shadow:0 6px 20px rgba(91,95,239,.45)}
+.btn.g{background:transparent;color:var(--t1)}
+.btn:hover{transform:translateY(-1px)}
+.ask{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);width:min(460px,36vw);display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.35);padding:8px 2px}
+.ask svg{width:15px;height:15px;opacity:.6}
+.ask input{flex:1;background:transparent;border:0;outline:none;color:var(--t1);font-size:14px;font-family:inherit}
+.ask input::placeholder{color:var(--t2)}
+/* ---------- dashboard */
+.dash{padding:8px 28px 120px;display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.panel{grid-column:span 12;position:relative;border-radius:18px;border:1px solid var(--line);background:linear-gradient(180deg,rgba(255,255,255,.028),rgba(255,255,255,.012));padding:18px 20px;min-width:0;opacity:0;transform:translateY(16px);filter:blur(8px);transition:opacity .9s var(--ease),transform 1s var(--ease),filter .9s var(--ease);transition-delay:var(--rd,0s)}
+.panel.in{opacity:1;transform:none;filter:none}
+.panel::after{content:'';position:absolute;inset:-1px;border-radius:inherit;pointer-events:none;padding:1px;opacity:0;transition:opacity .5s var(--ease);background:radial-gradient(240px circle at var(--mx,50%) var(--my,50%),rgba(143,147,255,.6),transparent 60%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+.panel:hover::after{opacity:1}
+.ph{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:2px;flex-wrap:wrap}
+.ph h3{margin:0;font-size:14.5px;font-weight:700;letter-spacing:-.2px}
+.ph .tag{font-size:11.5px;color:var(--t2);border:1px solid var(--line2);border-radius:8px;padding:3px 9px}
+.psub{font-size:12px;color:var(--t3);margin-bottom:14px}
+.s3{grid-column:span 3}.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}
+.kpi .k{font-size:12px;color:var(--t2);display:flex;justify-content:space-between;align-items:center}
+.kpi .v{font-size:30px;margin-top:8px;line-height:1.1;display:flex;align-items:baseline;gap:6px}
+.kpi .v small{font-size:13px;color:var(--t2);font-weight:400}
+.badge{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;background:rgba(91,95,239,.18);color:var(--tb3)}
+.badge.up{background:rgba(52,211,153,.14);color:#34d399}.badge.dn{background:rgba(251,113,133,.14);color:#fb7185}
+.kpi .s{font-size:12px;color:var(--t3);margin-top:6px}
 /* odometer */
 .odo{display:inline-flex;overflow:hidden;line-height:1;height:1em;vertical-align:bottom}
-.odo .dc{display:flex;flex-direction:column;transform:translateY(0);transition:transform 1.6s var(--ease);transition-delay:calc(var(--k)*60ms + .1s)}
+.odo .dc{display:flex;flex-direction:column;transition:transform 1.6s var(--ease);transition-delay:calc(var(--k)*70ms + .1s)}
 .odo .dc span{height:1em;line-height:1;display:block;text-align:center}
 .go .odo .dc{transform:translateY(calc(var(--d) * -1em))}
-.eq{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin:14px 0 16px}
-.eqi .k{font-size:10.5px;letter-spacing:1.5px;color:var(--t3);font-weight:700;margin-bottom:4px}
-.eqi .v{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1;display:flex;align-items:flex-end}
-.eqi .v small{font-size:14px;color:var(--t2);font-weight:600;margin-left:2px}
-.eqo{color:var(--t3);font-size:18px;padding-bottom:2px}
-.bigbar{display:flex;height:14px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.05);gap:2px;clip-path:inset(0 100% 0 0 round 10px);transition:clip-path 1.6s var(--ease) .2s}
-.go .bigbar{clip-path:inset(0 0 0 0 round 10px)}
-.bigbar div{height:100%}
-.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px}
-.lg{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--t2)}
-.lg i{width:8px;height:8px;border-radius:3px}
-.m3{display:grid;grid-template-columns:1.25fr 1fr 1fr;gap:16px}
-.card.hi{background:linear-gradient(145deg,#5357e8 0%,#6b58f5 55%,#8f72ff 100%);border-color:rgba(255,255,255,.16);box-shadow:0 24px 70px rgba(91,95,239,.38),inset 0 1px 0 rgba(255,255,255,.28);overflow:hidden}
-.card.hi::before{opacity:1;background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,.16) 50%,transparent 70%);background-size:250% 100%;animation:sweep 7s var(--ease2) infinite}
-@keyframes sweep{0%{background-position:150% 0}60%,100%{background-position:-100% 0}}
-.card.hi::after{display:none}
-.card.hi .lbl{color:rgba(255,255,255,.72)}
-.big{font-size:26px;font-weight:800;letter-spacing:-.8px;margin-top:6px;line-height:1.15}
-.big small{font-size:14px;font-weight:700;opacity:.85;margin-left:6px}
-.rank{margin-top:12px;display:flex;flex-direction:column;gap:7px}
-.rk{display:flex;align-items:center;gap:8px;font-size:12.5px}
-.rk span{width:74px;flex:none;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.rk .b{flex:1;height:5px;border-radius:9px;background:rgba(255,255,255,.12);overflow:hidden}
-.rk .b div{height:100%;border-radius:9px}
-.rk em{font-style:normal;font-weight:800;width:30px;text-align:right}
-/* rows */
-.row{display:flex;align-items:center;gap:12px;margin:8px 0}
-.rl{width:132px;flex:none;font-size:13.5px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .25s}
-.rl b{color:var(--t1)}
-.rl.cl{cursor:pointer}.rl.cl:hover{color:#fff}
-.rl.sel{color:#c9cbff;font-weight:800}
-.stk{flex:1;display:flex;height:26px;border-radius:8px;overflow:hidden;background:rgba(255,255,255,.04);min-width:0;gap:2px;clip-path:inset(0 100% 0 0 round 8px);transition:clip-path 1.3s var(--ease);transition-delay:calc(var(--i,0)*45ms + .1s)}
-.go .stk{clip-path:inset(0 0 0 0 round 8px)}
-.sg{height:100%;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.95);font-size:11px;font-weight:700;overflow:hidden;white-space:nowrap}
-.sg.lt{color:#141522}
-.rs{width:150px;flex:none;font-size:12.5px;color:var(--t2);text-align:right;white-space:nowrap}
-.rs .g{color:#aeb0ff;font-weight:800}.rs .o{color:#ffc069;font-weight:800}
-.g2{display:grid;grid-template-columns:1.6fr 1fr;gap:16px}
-.empty{color:var(--t3);padding:12px 0;font-size:13.5px}
-.chg div{padding:10px 0;border-bottom:1px solid var(--line);font-size:13.5px}
-.chg .d{font-weight:800;margin-right:8px}
-.up{color:#34d399}.dn{color:#fb7185}
-/* squares */
-.sq{width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:11.5px;font-weight:800;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.22);transition:transform .25s var(--ease)}
-.sq:hover{transform:translateY(-2px) scale(1.08)}
-.sq.lt{color:#141522}
-.sq.fd{opacity:.3}
-.sq.mini{width:18px;height:18px;font-size:10px;border-radius:6px;vertical-align:middle}
-.sqs{display:flex;gap:4px;align-items:center}
-.pop .sq{opacity:0;transform:scale(.6);animation:pop .6s var(--ease) forwards;animation-delay:calc(var(--j)*28ms)}
-.pop .sq.fd{animation-name:popf}
-@keyframes pop{to{opacity:1;transform:none}}
-@keyframes popf{to{opacity:.3;transform:none}}
-.sec{display:inline-flex;align-items:center;height:26px;padding:0 10px;border-radius:8px;border:1px dashed rgba(255,255,255,.22);color:var(--t3);font-size:11.5px;flex:none}
-.flow{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+/* line chart */
+.lc{position:relative}
+.lc svg{width:100%;height:260px;display:block;overflow:visible}
+.lc .gl{stroke:rgba(255,255,255,.05)}
+.lc .ax{fill:var(--t3);font-size:11px}
+.lc .ln{fill:none;stroke-width:2.2;stroke-linecap:round;stroke-dasharray:var(--l);stroke-dashoffset:var(--l);transition:stroke-dashoffset 2s var(--ease);transition-delay:var(--dl)}
+.go .lc .ln{stroke-dashoffset:0}
+.lc .ar{opacity:0;transition:opacity 1.2s var(--ease) .8s}
+.go .lc .ar{opacity:1}
+.lc .vl{stroke:rgba(255,255,255,.25);stroke-dasharray:3 4;opacity:0;transition:opacity .2s}
+.lc .pt{opacity:0;transition:opacity .2s}
+.tip{position:absolute;pointer-events:none;background:rgba(13,15,26,.92);border:1px solid var(--line2);border-radius:10px;padding:8px 10px;font-size:12px;opacity:0;transform:translate(-50%,-110%);transition:opacity .2s;white-space:nowrap;backdrop-filter:blur(8px);z-index:3}
+.tip b{font-size:13px}
+.lgd{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--t2)}
+.lgd i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px}
+/* donut */
+.dn{position:relative;width:210px;height:210px;margin:6px auto 12px}
+.dn svg{width:100%;height:100%;transform:rotate(-90deg)}
+.dn .sg{transition:stroke-dashoffset 1.6s var(--ease);transition-delay:calc(var(--i)*120ms + .2s)}
+.dn .ct{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.dn .ct b{font-size:28px;font-weight:300}
+.dn .ct span{font-size:11.5px;color:var(--t2)}
+.dlist{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.dlist .n{font-size:18px;font-weight:300}
+.dlist .k{font-size:11.5px;color:var(--t2);display:flex;align-items:center;justify-content:center;gap:5px}
+.dlist i{width:7px;height:7px;border-radius:50%}
+/* vertical bars */
+.vb{display:flex;align-items:flex-end;gap:10px;height:230px;padding-top:10px;border-bottom:1px solid var(--line);position:relative}
+.vb .col{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0;cursor:pointer}
+.vb .pair{display:flex;gap:4px;align-items:flex-end;height:100%;width:100%;justify-content:center}
+.vb .bar{width:9px;border-radius:5px 5px 2px 2px;transform-origin:bottom;transform:scaleY(0);transition:transform 1.3s var(--ease);transition-delay:calc(var(--k)*50ms + .1s)}
+.go .vb .bar{transform:scaleY(1)}
+.vb .col:hover .bar{filter:brightness(1.25)}
+.vbl{display:flex;gap:10px;margin-top:8px}
+.vbl span{flex:1;text-align:center;font-size:10.5px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+/* rank race */
+.race{position:relative}
+.race .ri{position:absolute;left:0;right:0;height:40px;display:grid;grid-template-columns:26px 120px 1fr 92px;align-items:center;gap:10px;transition:transform .9s var(--ease),opacity .5s}
+.race .no{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;font-size:12px;font-weight:700;background:rgba(255,255,255,.05);color:var(--t2)}
+.race .ri:first-child .no{background:var(--tb);color:#fff}
+.race .nm{display:flex;align-items:center;gap:8px;font-weight:600;font-size:13px}
+.race .tr{height:8px;border-radius:9px;background:rgba(255,255,255,.05);overflow:hidden}
+.race .tr div{height:100%;border-radius:9px;transition:width 1.2s var(--ease)}
+.race .vv{text-align:right;font-size:12px;color:var(--t2)}
+.race .vv b{color:var(--t1);font-weight:500;font-size:14px}
 /* table */
-.tbl{width:100%;border-collapse:collapse}
-.tbl td,.tbl th{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;font-size:13.5px;vertical-align:middle}
-.tbl th{color:var(--t3);font-weight:700;font-size:11px;letter-spacing:1.3px}
-.tbl tr.grp td{font-weight:800;color:var(--t1);cursor:pointer;transition:background-color .25s}
-.tbl tr.grp:hover td{background:rgba(255,255,255,.03)}
-.tbl tr.kr td{background:rgba(255,255,255,.012)}
-.tbl tr.kr{animation:rowin .6s var(--ease) both;animation-delay:calc(var(--j,0)*35ms)}
-@keyframes rowin{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
-.kwl{color:#c9cbff;font-weight:600;text-decoration:none;cursor:pointer;transition:color .25s}
-.kwl:hover{color:#fff}
-.tag{display:inline-block;font-size:11px;color:var(--t3);border:1px solid var(--line2);border-radius:6px;padding:1px 7px;margin-left:7px;font-weight:600;vertical-align:middle}
-.pb{display:inline-block;border-radius:999px;padding:3px 10px;font-size:12px;font-weight:800;margin-right:4px}
-.pb.g{background:rgba(91,95,239,.2);color:#c3c5ff}.pb.o{background:rgba(255,181,71,.14);color:#ffc069}
-.car{display:inline-block;width:16px;color:var(--t3);transition:transform .4s var(--ease);font-size:16px}
-.car.op{transform:rotate(90deg)}
-.ti{max-width:520px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sub2{font-size:11px;letter-spacing:1.6px;color:var(--t3);font-weight:700;margin:22px 0 10px}
-details.how{margin-top:16px;color:var(--t2);font-size:13px}
-details.how summary{cursor:pointer;color:var(--t3);list-style:none}
-details.how summary::-webkit-details-marker{display:none}
-details.how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
-/* dock */
-.dock{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:50;display:flex;gap:2px;padding:6px;border-radius:20px;background:rgba(18,19,30,.66);border:1px solid var(--line2);backdrop-filter:blur(20px) saturate(140%);box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)}
-.dock .ind{position:absolute;top:6px;bottom:6px;left:0;border-radius:14px;background:#5B5FEF;box-shadow:0 8px 24px rgba(91,95,239,.5),inset 0 1px 0 rgba(255,255,255,.25);transition:transform .55s var(--ease),width .55s var(--ease)}
-.dock a{position:relative;z-index:1;display:flex;align-items:center;gap:7px;padding:9px 14px;border-radius:14px;color:var(--t2);text-decoration:none;font-size:12.5px;font-weight:600;transition:color .35s}
-.dock a svg{width:17px;height:17px}
-.dock a.on{color:#fff}
-.foot{color:var(--t3);font-size:12px;text-align:center;margin-top:40px}
-@media(max-width:980px){.gh,.g2{grid-template-columns:1fr}.m3{grid-template-columns:1fr}}
-@media(max-width:640px){
- .wrap{padding:16px 12px 120px}.card{padding:16px;border-radius:18px}
- .rl{width:84px;font-size:12.5px}.rs{display:none}
- .chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
- .tl{display:none}.hide-m{display:none}
- .dock a span{display:none}.dock a{padding:10px 13px}
- .orbbox{width:250px;height:250px}
- .eqi .v{font-size:24px}
- select{min-width:0;flex:1}
- .card::before,.card::after{display:none}
-}
-@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.rv,h1 .w{opacity:1!important;filter:none!important;transform:none!important}}
-
-.plist{display:flex;flex-direction:column;gap:7px;margin-top:8px}
-.pr{display:grid;grid-template-columns:26px 1fr auto;align-items:center;gap:10px;padding:8px 10px;border-radius:12px;background:rgba(255,255,255,.03);border:1px solid var(--line)}
-.pr .no{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:12px;background:rgba(255,255,255,.07);color:var(--t2)}
-.pr.top .no{background:var(--grad);color:#fff}
-.pr .nm{display:flex;align-items:center;gap:8px;font-weight:700;font-size:13.5px}
-.pr .vv{text-align:right;font-size:12.5px;color:var(--t2);white-space:nowrap}
-.pr .vv b{color:var(--t1);font-size:14px}
-.pr .track{grid-column:2/4;margin-top:2px}
-.posr{display:grid;grid-template-columns:54px 1fr 118px;align-items:center;gap:10px;margin:5px 0}
-.posr .pn{font-size:12.5px;color:var(--t2);font-weight:700}
-.posr .pd{font-size:12.5px;text-align:right;white-space:nowrap;color:var(--t2)}
-.posr .pd b{color:var(--t1)}
-.posr .stk{height:22px}
-.rkc{display:flex;gap:6px;align-items:center;flex-wrap:wrap;flex:1;min-width:0}
-.rkc .it{display:inline-flex;align-items:center;gap:5px;padding:3px 8px 3px 3px;border-radius:9px;background:rgba(255,255,255,.035);border:1px solid var(--line);font-size:12px;color:var(--t2);white-space:nowrap}
+.tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.search{display:flex;align-items:center;gap:6px;border:1px solid var(--line2);border-radius:10px;padding:6px 10px}
+.search input{background:transparent;border:0;outline:none;color:var(--t1);font-size:12.5px;font-family:inherit;width:170px}
+.tbl{width:100%;border-collapse:collapse;margin-top:8px}
+.tbl th{font-size:11px;color:var(--t3);font-weight:600;text-align:left;padding:9px 8px;border-bottom:1px solid var(--line);letter-spacing:.4px;white-space:nowrap}
+.tbl td{padding:10px 8px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:middle}
+.tbl tr.r{cursor:pointer;animation:rowin .55s var(--ease) both;animation-delay:calc(var(--j)*25ms)}
+.tbl tr.r:hover td{background:rgba(255,255,255,.025)}
+@keyframes rowin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.tbl .kw{font-weight:600}
+.tbl .mut{color:var(--t3);font-size:12px}
+.pill{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;border-radius:999px;padding:3px 9px;border:1px solid var(--line2);color:var(--t2);white-space:nowrap}
+.pill i{width:6px;height:6px;border-radius:50%}
+.pg{display:flex;justify-content:space-between;align-items:center;margin-top:12px;font-size:12px;color:var(--t3)}
+.pg .b{display:flex;gap:4px}
+.pg button{border:1px solid var(--line2);background:transparent;color:var(--t2);border-radius:8px;min-width:30px;height:28px;cursor:pointer;font-size:12px}
+.pg button.on{background:var(--tb);border-color:var(--tb);color:#fff}
+.pg button:disabled{opacity:.3;cursor:default}
+.sq{width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:10px;font-weight:800;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.22)}
+.sq.lt{color:#11121c}
+.sq.fd{opacity:.3}
+.sqs{display:flex;gap:3px}
+/* history + shifts */
+.hrow{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--line)}
+.hrow .d{width:52px;font-size:12px;color:var(--t2);font-weight:600}
+.rkc{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.rkc .it{display:inline-flex;align-items:center;gap:5px;padding:2px 8px 2px 2px;border-radius:8px;border:1px solid var(--line);font-size:12px;color:var(--t2)}
 .rkc .it em{font-style:normal;color:var(--t3);font-size:10.5px}
-.rkc .it .o{font-size:10.5px;color:var(--t3);font-weight:800;margin-left:2px}
-.rkc .it.first{border-color:rgba(124,127,255,.55);background:rgba(91,95,239,.14);color:#e3e4ff}
-.rkc .arrow{color:var(--t3);font-size:11px}
-@media(max-width:640px){.posr{grid-template-columns:44px 1fr 70px}.rkc .it em{display:none}}
+.rkc .it.first{border-color:rgba(124,128,255,.6);background:rgba(91,95,239,.14);color:#e3e4ff}
+.chg div{padding:8px 0;border-bottom:1px solid var(--line);font-size:12.5px}
+.up{color:#34d399}.dnn{color:#fb7185}
+.empty{color:var(--t3);font-size:12.5px;padding:10px 0}
+/* drawer */
+.scrim{position:fixed;inset:0;background:rgba(2,3,8,.55);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .4s var(--ease);z-index:40}
+.scrim.on{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(620px,94vw);background:linear-gradient(180deg,#0a0c16,#06070d);border-left:1px solid var(--line2);z-index:41;transform:translateX(104%);transition:transform .6s var(--ease);overflow-y:auto;padding:24px 26px 60px;box-shadow:-30px 0 80px rgba(0,0,0,.5)}
+.drawer.on{transform:none}
+.drawer h2{margin:4px 0 4px;font-size:24px;font-weight:400;letter-spacing:-.5px}
+.drawer .x{position:absolute;top:18px;right:18px;border:1px solid var(--line2);background:transparent;color:var(--t2);border-radius:10px;width:34px;height:34px;cursor:pointer;font-size:16px}
+.flow{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.flow .sq{width:24px;height:24px;font-size:11px;opacity:0;transform:scale(.6);animation:pop .5s var(--ease) forwards;animation-delay:calc(var(--j)*30ms + .2s)}
+@keyframes pop{to{opacity:1;transform:none}}
+.sec{display:inline-flex;align-items:center;height:24px;padding:0 9px;border-radius:7px;border:1px dashed rgba(255,255,255,.22);color:var(--t3);font-size:11px}
+.cap3{font-size:11px;color:var(--t3);letter-spacing:1.4px;font-weight:700;margin:22px 0 10px}
+.dl td{font-size:12.5px}
+.ti{max-width:330px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.foot{grid-column:span 12;text-align:center;color:var(--t3);font-size:12px;padding-top:20px}
+@media(max-width:1180px){.s3{grid-column:span 6}.s4,.s5,.s7,.s8{grid-column:span 12}.s6{grid-column:span 12}}
+@media(max-width:1100px){.hcol{width:240px}.hcol.l{left:20px}.hcol.r{right:20px}.bigstat{left:20px}.rbox{right:20px}}
+@media(max-width:900px){
+ .app{grid-template-columns:1fr}.side{display:none}
+ .top{padding:12px 14px;flex-wrap:wrap}.chiprow{padding:10px 14px 0}
+ .hero{height:auto;min-height:0;padding:28px 16px 30px}
+ .hdate,.htitle{position:static}.htitle{margin:6px 0 10px}
+ .stage{position:relative;left:auto;top:auto;transform:none;width:min(360px,86vw);margin:10px auto}
+ .hcol,.bigstat,.rbox,.ask{position:static;width:auto;transform:none;margin:18px 0 0}
+ svg.leads{display:none}
+ .dash{padding:8px 14px 100px;gap:12px}.s3{grid-column:span 12}
+ .race .ri{grid-template-columns:24px 90px 1fr 70px}
+ .hide-m{display:none}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.panel{opacity:1;filter:none;transform:none}}
 </style>
 </head>
 <body>
-<div class="aurora"><i></i><i></i><i></i></div>
-<div class="grain"></div>
-<div class="wrap">
-<header class="topbar rv" style="--rd:0s">
-  <div class="brand"><span class="logo">T</span>TAMBLE<span class="sep">/</span><span class="nm">Logic Radar</span></div>
-  <div class="pills"><span class="pill"><span class="dot"></span>매일 07:00 자동 갱신</span><span class="pill" id="updPill"></span></div>
-</header>
+<div class="app">
+<aside class="side">
+  <div class="brand"><span class="lg">T</span><div>TAMBLE<small>Logic Radar</small></div></div>
+  <nav class="nav" id="navMain">
+    <div class="cap">MENU</div>
+    <a href="#hero" data-s="hero" class="on"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>오늘</span></a>
+    <a href="#p-pos" data-s="p-pos"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 17l5-6 4 3 5-7 4 4"/></svg>자리별 분석</span></a>
+    <a href="#p-race" data-s="p-race"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h10M4 12h16M4 18h7"/></svg>우선순위 레이스</span></a>
+    <a href="#p-cmp" data-s="p-cmp"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 20V10M12 20V4M18 20v-7"/></svg>업종·지역 비교</span></a>
+    <a href="#p-kw" data-s="p-kw"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>키워드</span></a>
+    <a href="#p-hist" data-s="p-hist"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>날짜별 변화</span></a>
+  </nav>
+  <nav class="nav" id="navGrp"><div class="cap">분류</div></nav>
+  <div class="status"><div class="r"><span class="dot"></span>자동 수집 중</div><b id="stUpd"></b><div class="s" id="stNext"></div></div>
+</aside>
 
-<section class="hero rv" id="sec-top" style="--rd:.05s">
-  <div class="eyebrow">NAVER SEARCH LOGIC</div>
-  <h1 id="heroTitle"></h1>
-  <p class="lead fx" id="heroSub"></p>
-</section>
+<main class="main">
+  <div class="top">
+    <div class="crumb">Logic Radar › <b id="crumb">전체</b></div>
+    <div class="sp"></div>
+    <div class="ctl">
+      <select id="rgSel"></select>
+      <span class="seg" id="modeSeg"></span>
+      <span class="seg" id="bySeg"></span>
+    </div>
+  </div>
+  <div class="chiprow" id="catChips"></div>
 
-<div class="toolbar rv" style="--rd:.15s">
-  <div class="trow"><span class="tl">분류</span><span class="seg" id="grpSeg"></span></div>
-  <div class="trow" id="catRow"><span class="tl">카테고리</span><div class="chips" id="catChips"></div></div>
-  <div class="trow"><span class="tl">보기</span><select id="rgSel"></select><select id="kwSel"></select><span class="seg" id="modeSeg"></span></div>
-</div>
-
-<section id="sec-ov" class="gh">
-  <div class="card rv" style="--rd:.2s">
-    <div class="ch"><span class="lbl">PRIORITY</span><span class="pill sm ac" id="scopePill"></span></div>
-    <div class="h3">노출 우선순위</div><div class="sub">평균 몇 번째 칸에 처음 나오는지로 매긴 순위예요 (안 나오면 11번째로 계산)</div>
-    <div class="orbbox">
-      <svg viewBox="0 0 290 290" id="rings"></svg>
+  <section class="hero" id="hero">
+    <div class="glow"></div>
+    <div class="hdate" id="hDate"></div>
+    <h1 class="htitle" id="hTitle"></h1>
+    <svg class="leads" id="leads"></svg>
+    <div class="stage" id="stage">
       <canvas id="orb"></canvas>
-      <div class="oc"><span class="c" style="margin:0 0 2px;opacity:.8">1순위</span><div class="big2" id="orbNum" style="font-size:34px"></div><span class="c" id="orbSub"></span></div>
+      <svg class="hud" viewBox="0 0 100 100" id="hud"></svg>
     </div>
-    <div class="mac fx" id="mac"></div>
-  </div>
-  <div class="col">
-    <div class="card rv" style="--rd:.28s">
-      <div class="ch"><span class="lbl" id="eqLbl">TOP 10 SLOTS</span><span class="pill sm" id="eqPill"></span></div>
-      <div class="h3" id="eqTitle"></div>
-      <div class="eq" id="eq"></div>
-      <div id="bigBar"></div>
-      <div class="legend fx" id="legend"></div>
+    <div class="hcol l">
+      <div class="cap2">노출 우선순위 · 평균 몇 번째 칸</div>
+      <div id="hPrio"></div>
+
     </div>
-    <div class="m3">
-      <div class="card hi rv fx" style="--rd:.36s" id="hiBlog"></div>
-      <div class="card rv fx" style="--rd:.42s" id="hiCafe"></div>
-      <div class="card rv fx" style="--rd:.48s" id="hiAd"></div>
+    <div class="hcol r">
+      <div class="cap2">블로그가 들어갈 자리</div>
+      <div id="hRight"></div>
     </div>
-  </div>
-</section>
+    <div class="bigstat">
+      <div class="cap2">분석한 검색 결과</div>
+      <div class="n num" id="hBig"></div>
+      <div class="s" id="hBigSub"></div>
+      <div class="spark" id="hSpark"></div>
+      <div class="spark-l"><span>1번째 칸</span><span id="hSparkR">20번째</span></div>
+    </div>
+    <div class="rbox" id="hBox"></div>
+    <label class="ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="askIn" list="kwList" placeholder="키워드를 입력해 보세요 · 예) 강남 치과"><datalist id="kwList"></datalist></label>
+  </section>
 
-<section id="sec-trend" class="g2" style="margin-top:16px">
-  <div class="card rv">
-    <div class="ch"><span class="lbl">DAILY</span><span class="pill sm" id="dayPill"></span></div>
-    <div class="h3">날짜별 우선순위</div>
-    <div class="sub">날마다 어떤 종류가 몇 순위였는지예요. 순서가 바뀌면 네이버가 노출 우선순위를 바꾼 거예요.</div>
-    <div id="daily" class="fx" style="margin-top:12px"></div>
-  </div>
-  <div class="card rv" style="--rd:.08s">
-    <div class="ch"><span class="lbl">SHIFTS</span></div>
-    <div class="h3">큰 변동 기록</div>
-    <div class="sub">전날보다 순위가 바뀌거나 평균 위치가 1칸 이상 움직인 종류</div>
-    <div id="chg" class="chg fx" style="margin-top:8px"></div>
-  </div>
-</section>
+  <section class="dash">
+    <div class="panel s3 kpi" id="k1"></div>
+    <div class="panel s3 kpi" id="k2" style="--rd:.06s"></div>
+    <div class="panel s3 kpi" id="k3" style="--rd:.12s"></div>
+    <div class="panel s3 kpi" id="k4" style="--rd:.18s"></div>
 
-<section id="sec-cat" class="card rv" style="margin-top:16px">
-  <div class="ch"><span class="lbl" id="cmpLbl">BY INDUSTRY</span><span style="display:flex;gap:8px;flex-wrap:wrap"><span class="seg" id="bySeg"></span><span class="seg" id="sortSeg"></span></span></div>
-  <div class="h3" id="cmpTitle">업종별 비교</div>
-  <div class="sub" id="cmpHint"></div>
-  <div id="cmp" class="fx" style="margin-top:10px"></div>
-</section>
+    <div class="panel s8" id="p-pos">
+      <div class="ph"><h3>자리별 점유율</h3><div class="lgd" id="lcLg"></div></div>
+      <div class="psub">가로 = 위에서부터 몇 번째 칸, 세로 = 그 자리를 차지한 비율. 선에 마우스를 올려보세요</div>
+      <div class="lc" id="lc"><svg id="lcSvg"></svg><div class="tip" id="lcTip"></div></div>
+    </div>
+    <div class="panel s4" id="p-first" style="--rd:.08s">
+      <div class="ph"><h3>1번째 칸은 누구</h3><span class="tag" id="dnTag"></span></div>
+      <div class="psub">검색하자마자 맨 위에 보이는 칸의 주인</div>
+      <div class="dn"><svg viewBox="0 0 100 100" id="dnSvg"></svg><div class="ct"><b class="num" id="dnC"></b><span id="dnCs"></span></div></div>
+      <div class="dlist" id="dnL"></div>
+    </div>
 
-<section id="sec-kw" class="card rv" style="margin-top:16px">
-  <div class="ch"><span class="lbl">BY KEYWORD</span><span class="pill sm" id="kwPill"></span></div>
-  <div class="h3">키워드별 칸 순서</div>
-  <div class="sub">위에서 나오는 순서대로 왼쪽→오른쪽. 흐린 칸은 11~15번째예요. 업종을 누르면 펼쳐지고, 키워드를 누르면 상세가 열려요.</div>
-  <div style="overflow-x:auto;margin-top:8px"><table class="tbl fx" id="kwTable"></table></div>
-</section>
+    <div class="panel s5" id="p-race">
+      <div class="ph"><h3>우선순위 레이스</h3><span class="tag" id="raceTag"></span></div>
+      <div class="psub">막대가 길수록 위에 먼저 나와요. 필터를 바꾸면 순위가 움직여요</div>
+      <div class="race" id="race"></div>
+    </div>
+    <div class="panel s7" id="p-cmp" style="--rd:.08s">
+      <div class="ph"><h3 id="cmpT">분류별 첫 등장 칸</h3><span class="seg" id="sortSeg"></span></div>
+      <div class="psub" id="cmpS"></div>
+      <div class="vb" id="vb"></div>
+      <div class="vbl" id="vbl"></div>
+      <div class="lgd" style="margin-top:12px"><span><i style="background:#5B5FEF"></i>블로그가 처음 나오는 칸</span><span><i style="background:#FFB547"></i>카페가 처음 나오는 칸</span><span style="color:var(--t3)">막대가 높을수록 위쪽(빠른 칸)</span></div>
+    </div>
 
-<section id="detailWrap" class="card" style="margin-top:16px;display:none">
-  <div class="ch"><span class="lbl">KEYWORD DETAIL</span><button class="chip" id="dClose">닫기</button></div>
-  <div class="h3" id="dTitle"></div>
-  <div class="sub" id="dHint"></div>
-  <div class="sub2">TODAY'S SERP FLOW · 점선 = 칸에서 빠지는 섹션</div>
-  <div class="flow pop" id="dFlow"></div>
-  <div class="sub2">HISTORY · 날짜별 앞 20칸</div>
-  <div id="dHist"></div>
-  <div class="sub2">RESULT LIST</div>
-  <div style="overflow-x:auto"><table class="tbl" id="dList"></table></div>
-</section>
+    <div class="panel" id="p-kw">
+      <div class="ph"><h3>키워드별 칸 순서</h3><div class="tools"><label class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="q" placeholder="키워드 찾기"></label><span class="seg" id="tSort"></span></div></div>
+      <div class="psub">왼쪽부터 위→아래 순서. 줄을 누르면 상세가 열려요</div>
+      <div style="overflow-x:auto"><table class="tbl" id="tbl"></table></div>
+      <div class="pg" id="pg"></div>
+    </div>
 
-<details class="how">
-  <summary>ⓘ 이 화면은 이렇게 만들어져요</summary>
-  <ul>
-    <li>모바일 통합검색(로그아웃 상태)을 키워드마다 매일 아침 7시에 한 번 읽어, 결과에 블로그·카페·웹사이트가 몇 칸씩 나왔는지 기록해요.</li>
-    <li>칸 = 검색 결과의 글 카드 하나. 광고(브랜드콘텐츠)도 화면 자리를 차지하므로 칸으로 셉니다.</li>
-    <li>클립·이미지·AI 브리핑·관련질문은 칸에서 빼고 순서 기록에만 남겨요. 파워링크·플레이스·쇼핑은 칸에 넣지 않아요.</li>
-    <li>종류는 네이버가 카드에 붙인 표시로 나눠요: 인플루언서 아이콘 / 공식 블로그 체크 / 대표카페 뱃지.</li>
-    <li>네이버는 볼 때마다 1~2칸씩 결과가 바뀌어요. 키워드 하나보다 업종·전체 합계의 흐름을 보세요.</li>
-  </ul>
-</details>
-<div class="foot">TAMBLE CORPORATION · Logic Radar</div>
+    <div class="panel s7" id="p-hist">
+      <div class="ph"><h3>날짜별 우선순위</h3><span class="tag" id="histTag"></span></div>
+      <div class="psub">날마다 1위부터 순서. 숫자 = 평균 몇 번째 칸</div>
+      <div id="hist"></div>
+    </div>
+    <div class="panel s5" id="p-chg" style="--rd:.08s">
+      <div class="ph"><h3>변동 기록</h3></div>
+      <div class="psub">순위가 바뀌거나 평균 위치가 1칸 이상 움직인 종류</div>
+      <div class="chg" id="chg"></div>
+    </div>
+    <div class="foot">TAMBLE CORPORATION · Logic Radar · 모바일 통합검색(로그아웃) 기준 · 순위 = 종류별로 처음 나오는 칸의 평균(안 나오면 11번째)</div>
+  </section>
+</main>
 </div>
 
-<nav class="dock" id="dock">
-  <span class="ind" id="dockInd"></span>
-  <a href="#sec-top" data-t="sec-top" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span>개요</span></a>
-  <a href="#sec-trend" data-t="sec-trend"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V9M10 19V5M16 19v-7M22 19H2"/></svg><span>추이</span></a>
-  <a href="#sec-cat" data-t="sec-cat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/></svg><span>업종</span></a>
-  <a href="#sec-kw" data-t="sec-kw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span>키워드</span></a>
-</nav>
+<div class="scrim" id="scrim"></div>
+<aside class="drawer" id="drawer">
+  <button class="x" id="dX">✕</button>
+  <div class="cap2" id="dCat"></div>
+  <h2 id="dTitle"></h2>
+  <div class="rsub" id="dHint"></div>
+  <div class="cap3">TODAY'S SERP FLOW · 점선 = 칸에서 빠지는 섹션</div>
+  <div class="flow" id="dFlow"></div>
+  <div class="cap3">HISTORY · 날짜별 앞 20칸</div>
+  <div id="dHist"></div>
+  <div class="cap3">RESULT LIST</div>
+  <table class="tbl dl" id="dList"></table>
+</aside>
 
 <script src="data.js"></script>
 <script>
@@ -348,296 +385,349 @@ const T = {
  B:['블로그','#5B5FEF',0,'블'], I:['인플루언서','#9B7BFF',0,'인'], O:['공식 블로그','#C3C5FF',1,'공'],
  C:['카페','#FFB547',1,'카'], D:['대표카페','#FF7A45',0,'대'],
  W:['웹사이트','#38C9F0',1,'웹'], K:['지식iN','#34D399',1,'지'], V:['동영상','#F472B6',0,'영'],
- A:['광고','#4B5163',0,'광'], X:['기타','#2C2F3D',0,'기']
+ A:['광고','#6B7186',0,'광'], X:['기타','#2C2F3D',0,'기']
 };
 const ORDER = ['B','I','O','C','D','W','K','V','A','X'];
-const GROUPS = [
- {k:'블로그 계열', e:'BLOG', t:'BIO', c1:'#5B5FEF', c2:'#A77BFF'},
- {k:'카페 계열', e:'CAFE', t:'CD', c1:'#FFB547', c2:'#FF7A45'},
- {k:'웹·지식iN·영상', e:'WEB', t:'WKV', c1:'#38C9F0', c2:'#34D399'},
- {k:'광고', e:'ADS', t:'A', c1:'#8a90a6', c2:'#4B5163'}
-];
-const KWS = D.kws; const GRPS = [...new Set(KWS.map(k=>k.grp))];
-const SEC = D.sec || {};
-// 압축 기록 풀기: 대문자 = 칸, 소문자 = 섹션
+const FAM = [{k:'블로그 계열',t:'BIO',c:'#7C80FF'},{k:'카페 계열',t:'CD',c:'#FFB547'},{k:'웹·지식iN',t:'WKV',c:'#38C9F0'},{k:'광고',t:'A',c:'#9aa0b4'}];
+const KWS = D.kws, GRPS = [...new Set(KWS.map(k=>k.grp))], SEC = D.sec || {};
 for (const dk of Object.keys(D.days)) for (const kw of Object.keys(D.days[dk])) { const v = D.days[dk][kw]; if (typeof v === 'string') D.days[dk][kw] = [...v].map(ch => /[A-Z]/.test(ch) ? ch : (SEC[ch] || '기타 섹션')); }
 const DATES = Object.keys(D.days).sort();
 const LAST = D.last || DATES[DATES.length-1], PREV = DATES[DATES.indexOf(LAST)-1];
-const st = {grp:'전체', cat:'전체', kw:null, mode:'top', rg:'전체', sort:'base', by:'cat', open:new Set()};
-const DET = () => (window.DETAIL && window.DETAIL.d) || {};
-const catsOf = g => [...new Set(KWS.filter(k=>g==='전체'||k.grp===g).map(k=>k.cat))];
-const keyOf = k => st.grp==='전체' ? k.grp : k.cat;
+const st = {grp:'전체', cat:'전체', rg:'전체', mode:'top', by:'cat', sort:'base', tsort:'base', q:'', page:0};
 const $ = id => document.getElementById(id);
 const esc = s => String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const isCard = t => t.length===1 && T[t];
 const cardsOf = f => (f||[]).filter(isCard);
 const md = d => d ? d.slice(5).replace('-','/') : '';
-const modeTxt = () => st.mode==='top' ? '상위 10칸' : '결과 전체';
-function sq(t, cls, txt, tip, j){ return `<span class="sq ${cls||''}${T[t][2]?' lt':''}" style="background:${T[t][1]}${j!==undefined?';--j:'+j:''}" title="${esc(tip||T[t][0])}">${txt===undefined?T[t][3]:txt}</span>`; }
+const fmt = v => v==null ? '-' : v.toFixed(1);
+const DET = () => (window.DETAIL && window.DETAIL.d) || {};
+const L = () => st.mode==='top' ? 10 : 20;
+function sq(t, cls, j){ return `<span class="sq ${cls||''}${T[t][2]?' lt':''}" style="background:${T[t][1]}${j!==undefined?';--j:'+j:''}" title="${T[t][0]}">${T[t][3]}</span>`; }
+function odo(n){ return '<span class="odo">' + String(n).split('').map((d,k)=>/\d/.test(d)?`<span class="dc" style="--d:${d};--k:${k}">${'0123456789'.split('').map(x=>`<span>${x}</span>`).join('')}</span>`:`<span>${d}</span>`).join('') + '</span>'; }
 function listKws(){ return KWS.filter(k=>(st.grp==='전체'||k.grp===st.grp)&&(st.cat==='전체'||k.cat===st.cat)&&(st.rg==='전체'||k.rg===st.rg)); }
-function scopeKws(){ return st.kw ? [st.kw] : listKws().map(k=>k.kw); }
-function scopeName(){ if (st.kw) return st.kw; const a = st.cat!=='전체' ? st.cat : (st.grp==='전체' ? '전체' : st.grp); return a + (st.rg!=='전체' ? ' · '+st.rg : ''); }
-// 비교 행: 전체면 대분류별, 대분류 고르면 카테고리별, 지역별 보기면 지역별
+const scope = () => listKws().map(k=>k.kw);
+function scopeName(){ const a = st.cat!=='전체' ? st.cat : (st.grp==='전체' ? '전체' : st.grp); return a + (st.rg!=='전체' ? ' · '+st.rg : ''); }
+function prio(date, kws){
+  const lim0 = st.mode==='top' ? 10 : null; const acc = {}; let kn = 0, slots = 0; const pos = [];
+  for (const kw of kws){ const f = D.days[date]?.[kw]; if (!f) continue; kn++;
+    let cs = cardsOf(f); if (lim0) cs = cs.slice(0,lim0); slots += cs.length; const lim = (lim0 || cs.length) + 1;
+    const first = {}; cs.forEach((t,i)=>{ if (!(t in first)) first[t] = i+1; if (i < 20){ const P = pos[i] ||= {n:0,c:{}}; P.n++; P.c[t]=(P.c[t]||0)+1; } });
+    for (const t of ORDER){ const a = acc[t] ||= {sum:0, hit:0}; if (t in first){ a.sum += first[t]; a.hit++; } else a.sum += lim; } }
+  const list = ORDER.filter(t=>acc[t]?.hit).map(t=>({t, avg: acc[t].sum/kn, rate: acc[t].hit/kn*100})).sort((x,y)=>x.avg-y.avg);
+  return {list, kn, slots, pos: pos.slice(0, L())};
+}
+function famFirst(date, kws, fam){
+  let s = 0, n = 0; for (const kw of kws){ const f = D.days[date]?.[kw]; if (!f) continue; let cs = cardsOf(f); if (st.mode==='top') cs = cs.slice(0,10); const i = cs.findIndex(t=>fam.includes(t)); n++; s += i>=0 ? i+1 : (st.mode==='top'?10:cs.length)+1; }
+  return n ? s/n : null;
+}
 function cmpRows(){
   const base = KWS.filter(k=>(st.grp==='전체'||k.grp===st.grp)&&(st.by==='rg' ? (st.cat==='전체'||k.cat===st.cat) : (st.rg==='전체'||k.rg===st.rg)));
   const keyf = st.by==='rg' ? (k=>k.rg) : (st.grp==='전체' ? (k=>k.grp) : (k=>k.cat));
-  const groups = {}; base.forEach(k=>{ (groups[keyf(k)] ||= []).push(k.kw); });
-  return Object.entries(groups).map(([name, ks])=>{ const r = count(LAST, ks); const p = prio(LAST, ks); return {name, r, p, ks, n:ks.length, b:share(r,'BIO'), c:share(r,'CD'), a:share(r,'A'), bf:famFirst(LAST,ks,'BIO').avg, cf:famFirst(LAST,ks,'CD').avg, af:famFirst(LAST,ks,'A').avg}; });
+  const g = {}; base.forEach(k=>{ (g[keyf(k)] ||= []).push(k.kw); });
+  return Object.entries(g).map(([name, ks])=>({name, ks, n:ks.length, bf:famFirst(LAST,ks,'BIO'), cf:famFirst(LAST,ks,'CD'), af:famFirst(LAST,ks,'A')})).filter(r=>r.bf!=null);
 }
-function count(date, kws){
-  const c = {}; let n = 0, kn = 0;
-  for (const kw of kws){ const f = D.days[date]?.[kw]; if (!f) continue; kn++;
-    let cs = cardsOf(f); if (st.mode==='top') cs = cs.slice(0,10);
-    cs.forEach(t=>{ c[t]=(c[t]||0)+1; n++; }); }
-  return {c, n, kn};
-}
-// 우선순위: 종류별 '처음 나오는 칸 번호'의 평균 (안 나오면 L+1). 낮을수록 위에 먼저 나옴
-function prio(date, kws){
-  const L = st.mode==='top' ? 10 : null; const acc = {}; let kn = 0; const pos = [];
-  for (const kw of kws){ const f = D.days[date]?.[kw]; if (!f) continue; kn++;
-    let cs = cardsOf(f); if (L) cs = cs.slice(0,L); const lim = (L || cs.length) + 1;
-    const first = {}; cs.forEach((t,i)=>{ if (!(t in first)) first[t] = i+1; const P = pos[i] ||= {n:0,c:{}}; P.n++; P.c[t]=(P.c[t]||0)+1; });
-    for (const t of ORDER){ const a = acc[t] ||= {sum:0, hit:0, fsum:0}; if (t in first){ a.sum += first[t]; a.hit++; a.fsum += first[t]; } else a.sum += lim; }
-  }
-  const list = ORDER.filter(t=>acc[t]?.hit).map(t=>({t, avg: acc[t].sum/kn, rate: acc[t].hit/kn*100, fp: acc[t].fsum/acc[t].hit})).sort((x,y)=>x.avg-y.avg);
-  return {list, kn, pos: L ? pos.slice(0,10) : pos.slice(0,20)};
-}
-// 계열(블로그=BIO, 카페=CD 등)이 처음 나오는 평균 칸
-function famFirst(date, kws, fam){
-  const L = st.mode==='top' ? 10 : null; let s = 0, n = 0, hit = 0;
-  for (const kw of kws){ const f = D.days[date]?.[kw]; if (!f) continue; let cs = cardsOf(f); if (L) cs = cs.slice(0,L); const i = cs.findIndex(t=>fam.includes(t)); n++; if (i>=0){ s += i+1; hit++; } else s += (L||cs.length)+1; }
-  return n ? {avg: s/n, rate: hit/n*100} : {avg: null, rate: 0};
-}
-const fmt = v => v==null ? '-' : v.toFixed(1);
-const share = (r, types) => r.n ? [...types].reduce((s,t)=>s+(r.c[t]||0),0)/r.n*100 : 0;
-// 숫자 굴러가는 카운터
-function odo(n){ return '<span class="odo">' + String(n).split('').map((d,k)=>`<span class="dc" style="--d:${d};--k:${k}">${'0123456789'.split('').map(x=>`<span>${x}</span>`).join('')}</span>`).join('') + '</span>'; }
-function stack(r, i){
-  if (!r.n) return '<div class="stk"></div>';
-  return `<div class="stk" style="--i:${i||0}">` + ORDER.filter(t=>r.c[t]).map(t=>{
-    const p = r.c[t]/r.n*100; const lab = p>=12 ? T[t][3]+' '+Math.round(p)+'%' : p>=8 ? Math.round(p)+'' : '';
-    return `<div class="sg${T[t][2]?' lt':''}" style="width:${p}%;background:${T[t][1]}" title="${T[t][0]} ${r.c[t]}칸 (${p.toFixed(1)}%)">${lab}</div>`;
-  }).join('') + '</div>';
-}
-// 재생: 클래스 go를 껐다 켜서 애니메이션 다시
 function replay(el){ if (!el) return; el.classList.remove('go'); void el.offsetWidth; requestAnimationFrame(()=>el.classList.add('go')); }
 
-$('updPill').textContent = '키워드 ' + KWS.length + '개 · 업데이트 ' + new Date(D.updated).toLocaleString('ko-KR',{timeZone:'Asia/Seoul', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) + ' · ' + DATES.length + '일째';
-
-// ----- 컨트롤 (한 번 만들고 상태만 바꿈 → 부드러운 전환)
+// ---------- controls
 function mkSeg(el, items, key, after){
   el.innerHTML = '<span class="thumb"></span>' + items.map(([v,l])=>`<button data-v="${v}">${l}</button>`).join('');
-  el.querySelectorAll('button').forEach(b=>b.onclick=()=>{ if (st[key]===b.dataset.v) return; st[key]=b.dataset.v; syncSeg(el, key); after(); });
-  syncSeg(el, key, true);
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>{ if (st[key]===b.dataset.v) return; st[key]=b.dataset.v; syncSeg(el,key); after(); });
+  requestAnimationFrame(()=>syncSeg(el, key, true));
 }
 function syncSeg(el, key, instant){
-  const btns = [...el.querySelectorAll('button')]; btns.forEach(b=>b.classList.toggle('on', b.dataset.v===st[key]));
-  const on = btns.find(b=>b.dataset.v===st[key]); const th = el.querySelector('.thumb'); if (!on||!th) return;
-  if (instant) th.style.transition='none';
-  th.style.width = on.offsetWidth+'px'; th.style.transform = `translateX(${on.offsetLeft}px)`;
-  if (instant) requestAnimationFrame(()=>th.style.transition='');
+  const bs = [...el.querySelectorAll('button')]; bs.forEach(b=>b.classList.toggle('on', b.dataset.v===st[key]));
+  const on = bs.find(b=>b.dataset.v===st[key]), th = el.querySelector('.thumb'); if (!on||!th) return;
+  if (instant) th.style.transition='none'; th.style.width = on.offsetWidth+'px'; th.style.transform = `translateX(${on.offsetLeft-3}px)`; if (instant) requestAnimationFrame(()=>th.style.transition='');
 }
 function initControls(){
-  mkSeg($('grpSeg'), [['전체','전체'], ...GRPS.map(g=>[g,g])], 'grp', ()=>{ st.cat='전체'; st.kw=null; st.rg='전체'; if (st.grp!=='지역 업종') st.by='cat'; update(); });
-  mkSeg($('modeSeg'), [['top','상위 10칸'],['all','결과 전체']], 'mode', ()=>update());
-  mkSeg($('sortSeg'), [['base','기본'],['blog','블로그 빠른 순'],['cafe','카페 빠른 순']], 'sort', ()=>{ const el=$('cmp'); el.classList.add('dim'); setTimeout(()=>{ compare(); el.classList.remove('dim'); replay($('sec-cat')); }, 220); });
-  mkSeg($('bySeg'), [['cat','업종별'],['rg','지역별']], 'by', ()=>{ const el=$('cmp'); el.classList.add('dim'); setTimeout(()=>{ compare(); el.classList.remove('dim'); replay($('sec-cat')); }, 220); });
-  $('rgSel').onchange = e => { st.rg = e.target.value; st.kw = null; update(); };
-  $('kwSel').onchange = e => { st.kw = e.target.value || null; update(); if (st.kw) setTimeout(()=>$('detailWrap').scrollIntoView({behavior:'smooth'}), 300); };
+  $('navGrp').innerHTML = '<div class="cap">분류</div>' + [['전체', KWS.length], ...GRPS.map(g=>[g, KWS.filter(k=>k.grp===g).length])].map(([g,n])=>`<button data-g="${esc(g)}"><span class="l">${esc(g)}</span><span class="c">${n}</span></button>`).join('');
+  $('navGrp').querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>{ st.grp=b.dataset.g; st.cat='전체'; st.rg='전체'; if (st.grp!=='지역 업종') st.by='cat'; update(); });
+  mkSeg($('modeSeg'), [['top','상위 10칸'],['all','전체 칸']], 'mode', ()=>update());
+  mkSeg($('bySeg'), [['cat','업종별'],['rg','지역별']], 'by', ()=>update());
+  mkSeg($('sortSeg'), [['base','기본'],['blog','블로그 빠른 순'],['cafe','카페 빠른 순']], 'sort', ()=>{ cmpChart(); replay($('p-cmp')); });
+  mkSeg($('tSort'), [['base','기본'],['blog','블로그 빠른 순'],['cafe','카페 빠른 순']], 'tsort', ()=>{ st.page=0; table(); });
+  $('rgSel').onchange = e => { st.rg = e.target.value; update(); };
+  $('q').oninput = e => { st.q = e.target.value.trim(); st.page = 0; table(); };
+  $('kwList').innerHTML = KWS.map(k=>`<option value="${esc(k.kw)}">${esc(k.grp)} · ${esc(k.cat)}</option>`).join('');
+  $('askIn').onchange = e => { const k = KWS.find(x=>x.kw===e.target.value.trim()); if (k) openDrawer(k.kw); };
+  $('askIn').onkeydown = e => { if (e.key==='Enter'){ const v = e.target.value.trim(); const k = KWS.find(x=>x.kw===v) || KWS.find(x=>x.kw.replace(/\s/g,'')===v.replace(/\s/g,'')) || KWS.find(x=>x.kw.includes(v)); if (k) openDrawer(k.kw); } };
+  $('scrim').onclick = closeDrawer; $('dX').onclick = closeDrawer; addEventListener('keydown', e=>{ if (e.key==='Escape') closeDrawer(); });
 }
 function syncControls(){
-  const cats = catsOf(st.grp);
-  $('catRow').classList.toggle('catrow-hide', st.grp==='전체');
-  $('catChips').innerHTML = ['전체', ...cats].map(c=>`<button class="chip${st.cat===c?' on':''}" data-c="${esc(c)}">${c==='전체'?'전체':esc(c)} <span style="opacity:.55;font-size:11px">${c==='전체'?KWS.filter(k=>k.grp===st.grp).length:KWS.filter(k=>k.grp===st.grp&&k.cat===c).length}</span></button>`).join('');
-  $('catChips').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ if (st.cat===b.dataset.c && !st.kw) return; st.cat=b.dataset.c; st.kw=null; update(); });
-  const regBase = KWS.filter(k=>(st.grp==='전체'||k.grp===st.grp)&&(st.cat==='전체'||k.cat===st.cat));
-  const regs = Object.entries(regBase.reduce((m,k)=>(m[k.rg]=(m[k.rg]||0)+1,m),{})).sort((a,b)=>b[1]-a[1]);
+  $('navGrp').querySelectorAll('[data-g]').forEach(b=>b.classList.toggle('on', b.dataset.g===st.grp));
+  $('crumb').textContent = scopeName();
+  const cats = [...new Set(KWS.filter(k=>k.grp===st.grp).map(k=>k.cat))];
+  $('catChips').style.display = st.grp==='전체' ? 'none' : '';
+  $('catChips').innerHTML = ['전체', ...cats].map(c=>`<button class="chip${st.cat===c?' on':''}" data-c="${esc(c)}">${esc(c)}<i>${c==='전체'?KWS.filter(k=>k.grp===st.grp).length:KWS.filter(k=>k.grp===st.grp&&k.cat===c).length}</i></button>`).join('');
+  $('catChips').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ if (st.cat===b.dataset.c) return; st.cat=b.dataset.c; update(); });
+  const rb = KWS.filter(k=>(st.grp==='전체'||k.grp===st.grp)&&(st.cat==='전체'||k.cat===st.cat));
+  const regs = Object.entries(rb.reduce((m,k)=>(m[k.rg]=(m[k.rg]||0)+1,m),{})).sort((a,b)=>b[1]-a[1]);
   $('rgSel').innerHTML = '<option value="전체">지역 전체</option>' + regs.map(([r,n])=>`<option value="${esc(r)}"${st.rg===r?' selected':''}>${esc(r)} (${n})</option>`).join('');
-  $('kwSel').innerHTML = `<option value="">키워드 전체 합계 (${listKws().length}개)</option>` + listKws().map(k=>`<option value="${esc(k.kw)}"${st.kw===k.kw?' selected':''}>${esc(k.kw)} · ${esc(k.cat)}</option>`).join('');
   $('bySeg').style.display = st.grp==='지역 업종' ? '' : 'none';
-  syncSeg($('grpSeg'),'grp'); syncSeg($('modeSeg'),'mode'); syncSeg($('sortSeg'),'sort'); syncSeg($('bySeg'),'by');
+  ['modeSeg','bySeg','sortSeg','tSort'].forEach(id=>syncSeg($(id), {modeSeg:'mode',bySeg:'by',sortSeg:'sort',tSort:'tsort'}[id]));
 }
-// 필터 바꿀 때: 흐려졌다가 새 숫자로 다시 차오름
 function update(){
-  const fx = [...document.querySelectorAll('.fx')]; fx.forEach(e=>e.classList.add('dim'));
-  document.querySelectorAll('.go').forEach(e=>e.classList.remove('go'));
-  setTimeout(()=>{ render(); fx.forEach(e=>e.classList.remove('dim')); document.querySelectorAll('.rv.in').forEach(e=>replay(e)); replay($('sec-top')); }, 240);
+  const hero = $('hero'); hero.classList.remove('go');
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('go'));
+  st.page = 0;
+  setTimeout(()=>{ render(); requestAnimationFrame(()=>{ hero.classList.add('go'); document.querySelectorAll('.panel.in').forEach(p=>p.classList.add('go')); }); }, 180);
 }
 
-function rankChips(p, max){
-  return '<div class="rkc">' + p.list.slice(0, max||6).map((x,i)=>`${i?'<span class="arrow">›</span>':''}<span class="it${i===0?' first':''}" title="${T[x.t][0]} · 평균 ${fmt(x.avg)}번째 · 등장 ${Math.round(x.rate)}%">${sq(x.t,'mini')}${T[x.t][0]}<em>${fmt(x.avg)}</em></span>`).join('') + '</div>';
-}
+// ---------- hero
+const WD = ['일','월','화','수','목','금','토'];
+let ORB = {rate:.45, hue:0};
 function hero(){
-  const p = prio(LAST, scopeKws());
-  const top = p.list[0];
-  const words = [...`${scopeName()} 노출 우선순위,`.split(' ').map(w=>esc(w)), '<br>', `<em>1위 ${top?T[top.t][0]:'-'}</em>`];
-  let i = 0; $('heroTitle').innerHTML = words.map(w=> w==='<br>' ? '<br>' : `<span class="w" style="--i:${i++}">${w}</span> `).join('');
-  $('heroSub').textContent = `${md(LAST)} 모바일 통합검색 ${modeTxt()} 기준 · 키워드 ${p.kn}개 · ` + p.list.slice(0,5).map((x,i)=>`${i+1}위 ${T[x.t][0]}(${fmt(x.avg)}번째)`).join(' → ');
-  $('scopePill').textContent = scopeName();
-}
-function overview(){
-  const kws = scopeKws(); const p = prio(LAST, kws);
-  let pp = null; if (PREV){ const common = kws.filter(k=>D.days[PREV]?.[k] && D.days[LAST]?.[k]); if (common.length) pp = prio(PREV, common); }
-  const prevRank = t => pp ? pp.list.findIndex(x=>x.t===t) : -1;
-  // 링: 상위 4종류의 등장률
-  const R = [134,119,104,89], svg = $('rings'); const top4 = p.list.slice(0,4);
-  const defs = '<defs><filter id="gl" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>';
-  svg.innerHTML = defs + top4.map((x,i)=>{ const c = 2*Math.PI*R[i]; const f = Math.max(.002, x.rate/100);
-    return `<circle cx="145" cy="145" r="${R[i]}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="6"/><circle class="ring" filter="url(#gl)" cx="145" cy="145" r="${R[i]}" fill="none" stroke="${T[x.t][1]}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${c}" style="--c:${c}px;--off:${c*(1-f)}px;--i:${i}"><title>${T[x.t][0]} 등장 ${Math.round(x.rate)}%</title></circle>`; }).join('');
-  $('orbNum').textContent = top4[0] ? T[top4[0].t][0] : '-';
-  $('orbSub').textContent = top4[0] ? `평균 ${fmt(top4[0].avg)}번째 · 등장 ${Math.round(top4[0].rate)}%` : '';
-  $('mac').innerHTML = '<div class="plist">' + p.list.map((x,i)=>{ const pr = prevRank(x.t); const mv = pr<0 ? '' : pr>i ? `<small class="up">▲${pr-i}</small>` : pr<i ? `<small class="dn">▼${i-pr}</small>` : '';
-    const L = st.mode==='top' ? 10 : 20; const w = Math.max(3, (L+1-x.avg)/L*100);
-    return `<div class="pr${i===0?' top':''}"><span class="no">${i+1}</span><span class="nm">${sq(x.t,'mini')}${T[x.t][0]} ${mv}</span><span class="vv">평균 <b>${fmt(x.avg)}</b>번째 · 등장 ${Math.round(x.rate)}%</span><div class="track"><div class="fill" style="width:${w}%;--i:${i};background:${T[x.t][1]}"></div></div></div>`; }).join('') + '</div>';
-  // 자리별 주인
-  $('eqLbl').textContent = 'BY POSITION';
-  $('eqTitle').textContent = (st.mode==='top' ? '1~10번째' : '1~20번째') + ' 칸, 자리마다 누가 나오나';
-  $('eqPill').textContent = '키워드 ' + p.kn + '개 합산';
-  $('eq').innerHTML = '';
-  $('bigBar').innerHTML = p.pos.map((P,i)=>{ const r = {c:P.c, n:P.n}; const dom = Object.entries(P.c).sort((a,b)=>b[1]-a[1])[0];
-    return `<div class="posr"><span class="pn">${i+1}번째</span>${stack(r,i)}<span class="pd">${dom?`<b>${T[dom[0]][0]}</b> ${Math.round(dom[1]/P.n*100)}%`:''}</span></div>`; }).join('');
-  $('legend').innerHTML = ORDER.filter(t=>t!=='X').map(t=>`<span class="lg"><i style="background:${T[t][1]}"></i>${T[t][0]}</span>`).join('');
-  // 강조 카드: 블로그/카페/광고가 가장 위에 뜨는 곳
-  const rows = cmpRows();
-  const dimName = st.by==='rg'?'지역':st.grp==='전체'?'분류':'카테고리';
-  const card = (key, title, sub, hi, col) => { const s = rows.filter(x=>x[key]!=null).sort((x,y)=>x[key]-y[key]); const top = s[0]; if (!top) return '';
-    const L = st.mode==='top'?10:20;
-    return `<div class="lbl">${title}</div><div class="big">${esc(top.name)}<small>평균 ${fmt(top[key])}번째</small></div><div class="sub" style="${hi?'color:rgba(255,255,255,.85)':''}">${sub}</div><div class="rank">${s.slice(0,4).map((x,i)=>`<div class="rk"><span>${esc(x.name)}</span><div class="b"><div class="fill" style="width:${Math.max(3,(L+1-x[key])/L*100)}%;--i:${i};background:${hi?'#fff':col}"></div></div><em>${fmt(x[key])}</em></div>`).join('')}</div>`; };
-  $('hiBlog').innerHTML = card('bf','BLOG FIRST','블로그가 가장 위에 뜨는 '+dimName, true);
-  $('hiCafe').innerHTML = card('cf','CAFE FIRST','카페가 가장 위에 뜨는 '+dimName, false, 'linear-gradient(90deg,#FFB547,#FF7A45)');
-  $('hiAd').innerHTML = card('af','AD FIRST','광고가 가장 위에 뜨는 '+dimName, false, 'linear-gradient(90deg,#9aa0b4,#4B5163)');
-}
-function daily(){
-  const kws = scopeKws();
-  $('dayPill').textContent = scopeName() + ' · ' + modeTxt();
-  $('daily').innerHTML = DATES.slice().reverse().slice(0,30).map((d,i)=>{ const p = prio(d, kws); return `<div class="row"><div class="rl" style="width:110px"><b>${md(d)}</b> <span style="color:var(--t3)">${p.kn}개</span></div>${rankChips(p, 7)}</div>`; }).join('') || '<div class="empty">아직 기록이 없어요.</div>';
-  if (DATES.length < 3) $('daily').innerHTML += `<div class="sub" style="margin-top:10px">기록 시작 ${md(DATES[0])} · 매일 한 줄씩 쌓여요. 숫자 = 평균 몇 번째 칸</div>`;
-}
-function compare(){
+  const ks = scope(); const p = prio(LAST, ks); const top = p.list[0];
+  const d = new Date(LAST+'T00:00:00');
+  $('hDate').textContent = `${d.getMonth()+1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일 · ${scopeName()} · ${st.mode==='top'?'상위 10칸':'전체 칸'}`;
+  const nm = top?T[top.t][0]:'-'; const code = nm.charCodeAt(nm.length-1)-0xAC00; const josa = code>=0 && code<11172 && code%28 ? '이에요' : '예요';
+  const words = ['오늘', '1순위는', `<em>${nm}</em>${josa}`];
+  let i = 0; $('hTitle').innerHTML = words.map(w=>`<span class="w" style="--i:${i++}">${w}</span>`).join(' ');
+  // 왼쪽: 우선순위 상위 4 + 펄스 선
+  $('hPrio').innerHTML = p.list.slice(0,4).map((x,i)=>`<div class="pitem" data-lead="l${i}"><div class="row1"><span class="nm"><span class="rk">${i+1}</span>${T[x.t][0]}</span><span class="v num">${fmt(x.avg)}<small>번째</small></span></div>
+    <svg class="pulse" viewBox="0 0 200 18" preserveAspectRatio="none" style="--c:${T[x.t][1]};--dl:${i*.7}s"><path class="bg" fill="none" stroke-width="1" d="${pulsePath(i)}"/><path class="fg" fill="none" stroke-width="1.6" d="${pulsePath(i)}"/></svg>
+    <div class="sub"><span>등장률 ${Math.round(x.rate)}%</span><span>${i===0?'가장 먼저 보임':''}</span></div></div>`).join('');
+  // 자리별 주인 (1~5번째)
+  if ($('hPos')) $('hPos').innerHTML = p.pos.slice(0,5).map((P,i)=>{ const dom = Object.entries(P.c).sort((a,b)=>b[1]-a[1])[0]; return `<div class="titem"><span class="t">${i+1}번째 칸</span><b>${T[dom[0]][0]}</b><span style="display:flex;align-items:center;gap:8px">${Math.round(dom[1]/P.n*100)}%<i style="background:${T[dom[0]][1]}"></i></span></div>`; }).join('');
+  // 오른쪽: 블로그 자리
+  const bf = famFirst(LAST, ks, 'BIO'), cf = famFirst(LAST, ks, 'CD'), af = famFirst(LAST, ks, 'A');
+  const blogTopShare = p.pos.slice(0,5).reduce((s,P)=>s+(P.c.B||0)+(P.c.I||0)+(P.c.O||0),0) / Math.max(1,p.pos.slice(0,5).reduce((s,P)=>s+P.n,0)) * 100;
+  $('hRight').innerHTML = [
+    ['블로그 첫 등장', fmt(bf)+'<small>번째</small>', '블로그 계열(일반·인플루언서·공식)이 처음 나오는 칸', '#7C80FF', 'r0'],
+    ['카페 첫 등장', fmt(cf)+'<small>번째</small>', '카페·대표카페가 처음 나오는 칸', '#FFB547', 'r1'],
+    ['상위 5칸 중 블로그', Math.round(blogTopShare)+'<small>%</small>', '맨 위 다섯 칸에서 블로그가 차지하는 비율', '#9B7BFF', 'r2']
+  ].map(([k,v,s,c,id],i)=>`<div class="pitem" data-lead="${id}"><div class="row1"><span class="nm">${k}</span><span class="v num">${v}</span></div><svg class="pulse" viewBox="0 0 200 18" preserveAspectRatio="none" style="--c:${c};--dl:${i*.9+.3}s"><path class="bg" fill="none" stroke-width="1" d="${pulsePath(i+5)}"/><path class="fg" fill="none" stroke-width="1.6" d="${pulsePath(i+5)}"/></svg><div class="sub"><span>${s}</span></div></div>`).join('');
+  // 왼쪽 아래 큰 숫자 + 스파크 (자리별 블로그 비율)
+  $('hBig').innerHTML = odo(p.slots.toLocaleString()) + '<small>칸</small>';
+  $('hBigSub').textContent = `키워드 ${p.kn}개 · 자리가 아래로 갈수록 블로그가 늘어요`;
+  $('hSpark').innerHTML = p.pos.map((P,k)=>{ const b = ((P.c.B||0)+(P.c.I||0)+(P.c.O||0))/P.n; return `<i style="height:${Math.max(6,b*100)}%;--k:${k}" title="${k+1}번째 칸 블로그 ${Math.round(b*100)}%"></i>`; }).join('');
+  $('hSparkR').textContent = p.pos.length + '번째 칸';
+  // 오른쪽 아래 박스: 가장 블로그 친화적인 곳
+  const rows = cmpRows().sort((a,b)=>a.bf-b.bf); const best = rows[0], worst = rows[rows.length-1];
   const dim = st.by==='rg' ? '지역' : st.grp==='전체' ? '분류' : '카테고리';
-  $('cmpLbl').textContent = st.by==='rg' ? 'BY REGION' : st.grp==='전체' ? 'BY GROUP' : 'BY CATEGORY';
-  $('cmpTitle').textContent = dim + '별 우선순위';
-  $('cmpHint').textContent = md(LAST) + ' · ' + modeTxt() + (st.by==='rg' ? ' · ' + (st.cat==='전체'?'지역 업종 전체':st.cat) + ' 기준' : '') + ' · 왼쪽부터 1위 · 숫자 = 평균 몇 번째 칸 · 이름을 누르면 그것만 봐요';
-  let rows = cmpRows();
-  if (st.sort==='blog') rows.sort((x,y)=>x.bf-y.bf); if (st.sort==='cafe') rows.sort((x,y)=>x.cf-y.cf);
-  if (st.sort==='base' && st.by==='rg') rows.sort((x,y)=>y.n-x.n);
-  const selName = st.by==='rg' ? st.rg : st.grp==='전체' ? st.grp : st.cat;
-  $('cmp').innerHTML = rows.map(({name,p,n,bf,cf})=>`<div class="row" style="align-items:flex-start"><div class="rl cl${selName===name?' sel':''}" data-cc="${esc(name)}" style="padding-top:4px">${esc(name)} <span style="color:var(--t3);font-size:11px">${n}</span></div>${rankChips(p, 6)}<div class="rs" style="padding-top:4px">블로그 <span class="g">${fmt(bf)}</span> · 카페 <span class="o">${fmt(cf)}</span>번째</div></div>`).join('');
-  document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{ const v = b.dataset.cc; if (st.by==='rg') st.rg = v; else if (st.grp==='전체') { st.grp = v; st.cat='전체'; } else st.cat = v; st.kw=null; window.scrollTo({top:0,behavior:'smooth'}); update(); });
+  $('hBox').innerHTML = best ? `<div class="hl">◆ 지금 볼 곳</div><div class="rbig">${esc(best.name)}, 블로그가 ${fmt(best.bf)}번째</div><div class="rsub">${dim} 중 블로그가 가장 위에 떠요. 가장 늦은 곳은 ${esc(worst.name)}(${fmt(worst.bf)}번째)</div><div class="btns"><button class="btn p" id="goBest">${esc(best.name)} 보기</button><button class="btn g" onclick="document.getElementById('p-cmp').scrollIntoView({behavior:'smooth'})">비교 보기</button></div>` : '';
+  const gb = $('goBest'); if (gb) gb.onclick = () => { if (st.by==='rg') st.rg = best.name; else if (st.grp==='전체') { st.grp = best.name; st.cat='전체'; } else st.cat = best.name; update(); };
+  // 구체 색·HUD
+  ORB.rate = top ? Math.min(1, top.rate/100) : .5;
+  hud(p);
+  requestAnimationFrame(leads);
 }
-function changes(){
-  const kws = scopeKws(); const out = [];
-  for (let i=1;i<DATES.length;i++){
-    const a = DATES[i-1], b = DATES[i];
-    const common = kws.filter(k=>D.days[a]?.[k] && D.days[b]?.[k]);
-    if (!common.length) continue;
-    const pa = prio(a, common), pb = prio(b, common);
-    const parts = pb.list.map((x,j)=>{ const k = pa.list.findIndex(y=>y.t===x.t); const old = pa.list[k]; const dv = old ? x.avg-old.avg : 0;
-      if (k<0) return `<span class="up">${T[x.t][0]} 새로 ${j+1}위</span>`;
-      if (k!==j && j<6) return `<span class="${j<k?'up':'dn'}">${T[x.t][0]} ${k+1}위→${j+1}위</span>`;
-      if (Math.abs(dv)>=1) return `<span class="${dv<0?'up':'dn'}">${T[x.t][0]} ${dv<0?'':'+'}${dv.toFixed(1)}칸</span>`;
-      return ''; }).filter(Boolean);
-    if (parts.length) out.push(`<div><span class="d">${md(b)}</span>` + parts.join(' · ') + '</div>');
-  }
-  $('chg').innerHTML = out.reverse().join('') || `<div class="empty">${DATES.length<2?'내일 두 번째 기록이 쌓이면 비교가 시작돼요.':'순위 변동 없음'}</div>`;
+function pulsePath(seed){
+  let d = 'M0 10'; const r = n => { const x = Math.sin(n*12.9898+seed*78.233)*43758.5453; return x - Math.floor(x); };
+  for (let x = 8; x <= 200; x += 8){ const spike = r(x) > .82; d += ` L${x} ${spike ? (r(x+1)>.5 ? 2 : 17) : 9 + (r(x+2)-.5)*3}`; }
+  return d;
 }
-function kwTable(animGroup){
-  const det = DET();
-  const ks = listKws(); const all = st.cat==='전체';
-  $('kwPill').textContent = scopeName() + ' · ' + ks.length + '개';
-  let html = '<tr><th>KEYWORD</th><th>1 — 10</th><th class="hide-m">11 — 15</th><th>처음 나오는 칸</th></tr>';
-  let lastCat = null, gi = 0, j = 0;
-  for (const k of ks){
-    const gkey = st.grp==='전체' ? k.grp+' · '+k.cat : k.cat;
-    if (all && gkey!==lastCat){
-      lastCat = gkey; j = 0;
-      const gk = ks.filter(x=>(st.grp==='전체' ? x.grp+' · '+x.cat : x.cat)===gkey).map(x=>x.kw); const gr = count(LAST, gk); const op = st.open.has(gkey);
-      html += `<tr class="grp" data-g="${esc(gkey)}"><td style="white-space:nowrap"><span class="car${op?' op':''}">›</span>${esc(gkey)}<span class="tag">${gk.length}</span></td><td colspan="2" class="hide-m">${rankChips(prio(LAST, gk), 6)}</td><td style="white-space:nowrap"><span class="pb g">블로그 ${fmt(famFirst(LAST,gk,'BIO').avg)}번째</span><span class="pb o">카페 ${fmt(famFirst(LAST,gk,'CD').avg)}번째</span></td></tr>`;
-    }
-    if (all && !st.open.has(gkey)) continue;
-    const f = D.days[LAST]?.[k.kw];
-    const nm = `<a class="kwl" data-kd="${esc(k.kw)}">${esc(k.kw)}</a><span class="tag">${esc(k.rg)}</span>`;
-    const anim = !all || animGroup===gkey;
-    const rowAttr = anim ? ` style="--j:${j++}"` : ' style="animation:none"';
-    if (!f){ html += `<tr class="kr"${rowAttr}><td>${nm}</td><td colspan="3" class="sub">수집 실패</td></tr>`; continue; }
-    const cs = cardsOf(f); const cd = det[k.kw] || [];
-    const tip = i => (i+1)+'번째 · '+T[cs[i]][0]+(cd[i]?.n?' · '+cd[i].n:'');
-    const bi = cs.findIndex(t=>'BIO'.includes(t)), ci = cs.findIndex(t=>'CD'.includes(t)); const blog = bi<0?'없음':(bi+1)+'번째', cafe = ci<0?'없음':(ci+1)+'번째';
-    html += `<tr class="kr"${rowAttr}><td style="white-space:nowrap;padding-left:${all?'26px':'8px'}">${nm}</td><td><div class="sqs">${cs.slice(0,10).map((t,i)=>sq(t,'',undefined,tip(i))).join('')}</div></td><td class="hide-m"><div class="sqs">${cs.slice(10,15).map((t,i)=>sq(t,'fd',undefined,tip(i+10))).join('')}</div></td><td style="white-space:nowrap"><span class="pb g">블로그 첫 ${blog}</span><span class="pb o">카페 첫 ${cafe}</span></td></tr>`;
-  }
-  $('kwTable').innerHTML = html;
-  document.querySelectorAll('[data-g]').forEach(r=>r.onclick=()=>{ const g=r.dataset.g; const opening = !st.open.has(g); opening?st.open.add(g):st.open.delete(g); kwTable(opening?g:null); });
-  document.querySelectorAll('[data-kd]').forEach(a=>a.onclick=()=>{ st.kw=a.dataset.kd; update(); setTimeout(()=>$('detailWrap').scrollIntoView({behavior:'smooth'}), 300); });
+function hud(p){
+  const arc = (r, a0, a1) => { const p0 = [50+r*Math.cos(a0), 50+r*Math.sin(a0)], p1 = [50+r*Math.cos(a1), 50+r*Math.sin(a1)]; return `M${p0[0]} ${p0[1]} A${r} ${r} 0 ${a1-a0>Math.PI?1:0} 1 ${p1[0]} ${p1[1]}`; };
+  const ticks = Array.from({length:90},(_,i)=>{ const a = i/90*Math.PI*2, r1 = 48.5, r2 = i%5===0 ? 47 : 47.8; return `<line x1="${50+r1*Math.cos(a)}" y1="${50+r1*Math.sin(a)}" x2="${50+r2*Math.cos(a)}" y2="${50+r2*Math.sin(a)}" stroke="rgba(255,255,255,${i%5===0?.35:.15})" stroke-width=".25"/>`; }).join('');
+  const top = p.list[0]; const share = top ? top.rate/100 : .5;
+  const a0 = -Math.PI/2 - .55, a1 = -Math.PI/2 + .55;
+  const accent = arc(44, Math.PI/2 - share*1.4, Math.PI/2 + share*1.4);
+  $('hud').innerHTML = `<g class="spin2">${ticks}</g>
+    <g class="spin"><path d="${arc(45.5, a0, a1)}" fill="none" stroke="rgba(255,255,255,.75)" stroke-width=".45" stroke-linecap="round"/><path d="${arc(45.5, a0+Math.PI*.95, a1+Math.PI*.7)}" fill="none" stroke="rgba(255,255,255,.25)" stroke-width=".3"/></g>
+    <path class="arcd" d="${accent}" fill="none" stroke="#7C80FF" stroke-width=".9" stroke-linecap="round" style="--len:${Math.ceil(44*share*2.8+2)}"/>
+    <path class="arcd" d="${arc(41.5, Math.PI*1.1, Math.PI*1.35)}" fill="none" stroke="rgba(143,147,255,.8)" stroke-width=".5" stroke-linecap="round" style="--len:12"/>`;
 }
-function detail(){
-  if (!st.kw){ $('detailWrap').style.display='none'; return; }
-  $('detailWrap').style.display='';
-  const k = KWS.find(x=>x.kw===st.kw) || {};
-  $('dTitle').innerHTML = esc(st.kw) + `<span class="tag">${esc(k.cat||'')}</span>`;
-  $('dHint').innerHTML = md(LAST) + ' 기준 · <a href="https://m.search.naver.com/search.naver?query=' + encodeURIComponent(st.kw) + '" target="_blank" rel="noopener">네이버에서 직접 보기 ↗</a>';
-  const f = D.days[LAST]?.[st.kw] || []; let j = 0;
-  $('dFlow').innerHTML = f.map(t=> isCard(t) ? sq(t,'',undefined,undefined,j++) : `<span class="sec">${esc(t)}</span>`).join('') || '<span class="empty">기록 없음</span>';
-  $('dHist').innerHTML = DATES.slice().reverse().map(d=>{ const cs = cardsOf(D.days[d]?.[st.kw]); return `<div class="row"><div class="rl" style="width:56px"><b>${md(d)}</b></div><div class="sqs" style="flex-wrap:wrap">${cs.slice(0,20).map((t,j)=>sq(t, j>=10?'fd':'')).join('')}</div></div>`; }).join('');
-  const cd = DET()[st.kw] || []; if (!window.DETAIL) $('dList').innerHTML = '<tr><td class="sub">글 목록 불러오는 중…</td></tr>';
-  if (window.DETAIL) $('dList').innerHTML = '<tr><th style="width:48px">#</th><th style="width:130px">TYPE</th><th>SOURCE</th><th>TITLE</th></tr>' + cd.map((c,j)=>`<tr class="kr" style="--j:${Math.min(j,20)}"><td><b>${j+1}</b></td><td style="white-space:nowrap">${sq(c.t,'mini')} ${T[c.t]?.[0]||c.t}</td><td>${esc(c.n)}</td><td class="ti">${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:'<span class="sub">'+esc(c.ti||'광고 카드')+'</span>'}</td></tr>`).join('');
+function leads(){
+  const svg = $('leads'), hero = $('hero'); if (getComputedStyle(svg).display==='none') return;
+  const hb = hero.getBoundingClientRect(), sb = $('stage').getBoundingClientRect();
+  const cx = sb.left + sb.width/2 - hb.left, cy = sb.top + sb.height/2 - hb.top, R = sb.width*.47;
+  let out = '';
+  hero.querySelectorAll('[data-lead]').forEach((el,i)=>{
+    const b = el.getBoundingClientRect(); const left = b.left + b.width/2 < hb.left + hb.width/2;
+    const y = b.top - hb.top + 16; const x = left ? b.right - hb.left + 14 : b.left - hb.left - 14;
+    const ang = Math.atan2(y - cy, x - cx); const ex = cx + R*Math.cos(ang), ey = cy + R*Math.sin(ang);
+    const mx = left ? x + 40 : x - 40;
+    const d = `M${x} ${y} L${mx} ${y} L${ex} ${ey}`; const len = Math.hypot(mx-x,0) + Math.hypot(ex-mx, ey-y) + 2;
+    out += `<path d="${d}" style="--l:${len}"/><circle cx="${x}" cy="${y}" r="2"/><circle cx="${ex}" cy="${ey}" r="1.6"/>`;
+  });
+  svg.innerHTML = out;
 }
-$('dClose').onclick = () => { st.kw = null; update(); };
-function render(){ syncControls(); hero(); overview(); daily(); compare(); changes(); kwTable(); detail(); }
-initControls(); render();
-// 칸 상세(이름·제목·링크)는 용량이 커서 화면이 뜬 다음에 불러옴
-window.__detailLoaded = () => { if (st.kw) detail(); };
-setTimeout(()=>{ const s = document.createElement('script'); s.src = 'detail.js?v=' + D.updated; document.body.appendChild(s); }, 600);
-
-// 스크롤하면 하나씩 블러 걷히며 등장
-const io = new IntersectionObserver(es=>{ es.forEach(e=>{ if (e.isIntersecting){ e.target.classList.add('in'); setTimeout(()=>e.target.classList.add('go'), 120); io.unobserve(e.target); } }); }, {threshold:.12});
-document.querySelectorAll('.rv').forEach(el=>io.observe(el));
-requestAnimationFrame(()=>{ $('sec-top').classList.add('go'); });
-
-// 카드 위 마우스 스포트라이트
-document.querySelectorAll('.card').forEach(c=>c.addEventListener('pointermove', e=>{ const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX-r.left)+'px'); c.style.setProperty('--my', (e.clientY-r.top)+'px'); }));
-
-// 입자 구: 미세한 점, 느린 회전, 마우스 따라 기울어짐
+// 출렁이는 입자 구체 (COREVIS 느낌, 탬블 블루~바이올렛)
 (function orb(){
-  const cv = $('orb'), box = cv.parentElement; const dpr = Math.min(2, window.devicePixelRatio||1);
-  const S = 180; cv.width = S*dpr; cv.height = S*dpr; const ctx = cv.getContext('2d'); ctx.scale(dpr,dpr);
-  const cx = S/2, cy = S/2, N = 1400, golden = Math.PI*(3-Math.sqrt(5)), P = [];
-  for (let i=0;i<N;i++){ const y = Math.max(-1,Math.min(1, 1-((i+.5+(Math.random()-.5)*2)/N)*2)); const r = Math.sqrt(1-y*y); const a = i*golden+(Math.random()-.5)*.3;
-    const sh = Math.random()<.18 ? .4+.5*Math.sqrt(Math.random()) : 1; P.push([Math.cos(a)*r*sh, y*sh, Math.sin(a)*r*sh, Math.random()<.12]); }
+  const cv = $('orb'), ctx = cv.getContext('2d'); const dpr = Math.min(2, devicePixelRatio||1);
+  let S = 0; const resize = () => { S = cv.clientWidth; cv.width = S*dpr; cv.height = S*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); };
+  resize(); addEventListener('resize', ()=>{ resize(); leads(); });
+  const N = 6400, P = [], g = Math.PI*(3-Math.sqrt(5));
+  for (let i=0;i<N;i++){ const y = 1 - (i+.5)/N*2, r = Math.sqrt(1-y*y), a = i*g; P.push([Math.cos(a)*r, y, Math.sin(a)*r]); }
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let t = 0, tx = .3, ty = 0, cx2 = .3, cy2 = 0, intro = 0;
-  box.addEventListener('pointermove', e=>{ const r = box.getBoundingClientRect(); ty = ((e.clientX-r.left)/r.width-.5)*.9; tx = .3 + ((e.clientY-r.top)/r.height-.5)*.7; });
-  box.addEventListener('pointerleave', ()=>{ tx=.3; ty=0; });
+  let t = 0, mx = 0, my = 0, tx = 0, ty = 0, intro = 0;
+  $('hero').addEventListener('pointermove', e=>{ const b = cv.getBoundingClientRect(); tx = ((e.clientX-b.left)/b.width-.5); ty = ((e.clientY-b.top)/b.height-.5); });
+  const noise = (x,y,z,t) => Math.sin(x*2.1+t*1.1)*Math.cos(y*2.6-t*.8)*.5 + Math.sin(y*3.3+z*2.2+t*.7)*.3 + Math.cos(z*3.7-x*1.9+t*1.3)*.25 + Math.sin((x+y+z)*5+t*2)*.06;
+  const lerp = (a,b,k)=>a+(b-a)*k;
+  const C1 = [235,238,255], C2 = [120,126,255], C3 = [176,120,255], C4 = [255,140,170], C5 = [255,178,110];
+  function col(m, a){ // m: 0(위)~1(아래)
+    const st2 = [[0,C1],[.38,C2],[.62,C3],[.84,C4],[1,C5]]; let k = 1; while (k < st2.length-1 && m > st2[k][0]) k++;
+    const [m0,c0] = st2[k-1], [m1,c1] = st2[k]; const u = Math.max(0, Math.min(1, (m-m0)/(m1-m0)));
+    return `rgba(${lerp(c0[0],c1[0],u)|0},${lerp(c0[1],c1[1],u)|0},${lerp(c0[2],c1[2],u)|0},${a})`; }
   function frame(){
-    cx2 += (tx-cx2)*.05; cy2 += (ty-cy2)*.05; intro += (1-intro)*.03;
+    mx += (tx-mx)*.04; my += (ty-my)*.04; intro += (1-intro)*.025;
     ctx.clearRect(0,0,S,S);
-    const g = ctx.createRadialGradient(cx,cy,0,cx,cy,S/2); g.addColorStop(0,'rgba(91,95,239,.32)'); g.addColorStop(.55,'rgba(91,95,239,.07)'); g.addColorStop(1,'rgba(91,95,239,0)');
-    ctx.fillStyle = g; ctx.fillRect(0,0,S,S);
-    const a = t + cy2, ca = Math.cos(a), sa = Math.sin(a), ct = Math.cos(cx2), stt = Math.sin(cx2);
-    const R = S*.42*(.85+.15*intro)*(1+.012*Math.sin(t*2.2));
-    for (const p of P){
-      const x = p[0]*ca - p[2]*sa, z = p[0]*sa + p[2]*ca, y = p[1];
-      const y2 = y*ct - z*stt, z2 = y*stt + z*ct; const s = (z2+1.4)/2.4;
-      const al = (.08 + .78*s*s) * intro;
-      ctx.fillStyle = p[3] ? `rgba(150,140,255,${al})` : `rgba(${200+Math.round(40*s)},${205+Math.round(35*s)},255,${al})`;
-      const sz = .35 + .95*s;
-      ctx.fillRect(cx + x*R - sz/2, cy + y2*R - sz/2, sz, sz);
+    const cx = S/2, cy = S/2, R = S*.36*(.82+.18*intro);
+    const ra = t*.22 + mx*.8, ca = Math.cos(ra), sa = Math.sin(ra), tl = .3 + my*.5, ct = Math.cos(tl), stt = Math.sin(tl);
+    const amp = .17 + ORB.rate*.05;
+    ctx.globalCompositeOperation = 'lighter';
+    for (let i=0;i<N;i++){
+      const p = P[i]; const n = noise(p[0]*1.25, p[1]*1.25, p[2]*1.25, t);
+      const rr = 1 + n*amp; const x = p[0]*rr, y = p[1]*rr, z = p[2]*rr;
+      const x2 = x*ca - z*sa, z2 = x*sa + z*ca; const y3 = y*ct - z2*stt, z3 = y*stt + z2*ct;
+      const nz = Math.abs(z3/rr); const rim = Math.pow(1 - nz, 2.4);
+      const front = z3 > 0 ? 1 : .5;
+      const a = (.04 + .9*rim) * front * intro;
+      if (a < .03) continue;
+      const sz = .55 + 1.5*rim;
+      ctx.fillStyle = col(Math.max(0, Math.min(1, (y3/rr+1)/2 + n*.15)), a.toFixed(3));
+      ctx.fillRect(cx + x2*R - sz/2, cy + y3*R - sz/2, sz, sz);
     }
-    t += .0022; if (!reduce) requestAnimationFrame(frame);
+    ctx.globalCompositeOperation = 'source-over';
+    // 은은한 빛 번짐 (자기 자신을 흐리게 겹쳐 그림)
+    ctx.save(); ctx.globalCompositeOperation = 'lighter'; ctx.filter = 'blur(7px)'; ctx.globalAlpha = .55; ctx.drawImage(cv, 0, 0, S, S); ctx.restore();
+    t += .006; if (!reduce) requestAnimationFrame(frame);
   }
   frame();
 })();
 
-// 하단 독: 선택 표시가 미끄러지듯 이동
-(function dock(){
-  const links = [...document.querySelectorAll('#dock a')], ind = $('dockInd');
-  const move = (l, instant) => { if (instant) ind.style.transition='none'; ind.style.width = l.offsetWidth+'px'; ind.style.transform = `translateX(${l.offsetLeft}px)`; if (instant) requestAnimationFrame(()=>ind.style.transition=''); };
-  move(links[0], true);
-  const set = id => { links.forEach(l=>{ const on = l.dataset.t===id; l.classList.toggle('on', on); if (on) move(l); }); };
-  links.forEach(l=>l.addEventListener('click', ()=>set(l.dataset.t)));
-  const io2 = new IntersectionObserver(es=>{ es.forEach(e=>{ if (e.isIntersecting) set(e.target.id); }); }, {rootMargin:'-45% 0px -50% 0px'});
-  ['sec-top','sec-trend','sec-cat','sec-kw'].forEach(id=>io2.observe($(id)));
-  addEventListener('resize', ()=>{ const on = links.find(l=>l.classList.contains('on')); if (on) move(on, true); });
-})();
+// ---------- KPI
+function kpis(){
+  const ks = scope(); const p = prio(LAST, ks); let pp = null;
+  if (PREV){ const common = ks.filter(k=>D.days[PREV]?.[k] && D.days[LAST]?.[k]); if (common.length) pp = prio(PREV, common); }
+  const top = p.list[0]; const bf = famFirst(LAST, ks, 'BIO'), cf = famFirst(LAST, ks, 'CD');
+  const ad3 = p.pos.slice(0,3).reduce((s,P)=>s+(P.c.A||0),0) / Math.max(1,p.pos.slice(0,3).reduce((s,P)=>s+P.n,0)) * 100;
+  const pbf = pp ? famFirst(PREV, ks.filter(k=>D.days[PREV]?.[k]), 'BIO') : null;
+  const dBadge = (v, inv) => v==null ? '<span class="badge">내일부터 비교</span>' : `<span class="badge ${(inv? v<0 : v>0)?'up':'dn'}">${v>0?'+':''}${v.toFixed(1)}</span>`;
+  $('k1').innerHTML = `<div class="k">1순위 종류 <span class="badge">${top?Math.round(top.rate)+'% 등장':''}</span></div><div class="v num">${top?T[top.t][0]:'-'}<small>평균 ${top?fmt(top.avg):'-'}번째</small></div><div class="s">${p.list.slice(1,3).map((x,i)=>`${i+2}위 ${T[x.t][0]}`).join(' · ')}</div>`;
+  $('k2').innerHTML = `<div class="k">블로그 첫 등장 ${dBadge(pbf!=null && bf!=null ? bf-pbf : null, true)}</div><div class="v num">${odo(fmt(bf))}<small>번째 칸</small></div><div class="s">블로그·인플루언서·공식 블로그 중 처음</div>`;
+  $('k3').innerHTML = `<div class="k">카페 첫 등장 <span class="badge">대표카페 포함</span></div><div class="v num">${odo(fmt(cf))}<small>번째 칸</small></div><div class="s">카페 글이 처음 나오는 평균 위치</div>`;
+  $('k4').innerHTML = `<div class="k">맨 위 3칸 광고 비율 <span class="badge">브랜드콘텐츠</span></div><div class="v num">${odo(Math.round(ad3))}<small>%</small></div><div class="s">키워드 ${p.kn}개 · ${p.slots.toLocaleString()}칸 기준</div>`;
+}
+// ---------- 자리별 점유율 선 그래프
+function lineChart(){
+  const p = prio(LAST, scope()); const n = p.pos.length; const svg = $('lcSvg');
+  const W = svg.clientWidth || 800, H = 260, pl = 34, pr = 10, pt = 12, pb = 26;
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  const xs = i => pl + (n<=1?0:i/(n-1))*(W-pl-pr), ys = v => pt + (1-v)*(H-pt-pb);
+  const series = FAM.map(f=>({f, v: p.pos.map(P=>[...f.t].reduce((s,t)=>s+(P.c[t]||0),0)/P.n)}));
+  const smooth = pts => pts.map((pt,i)=>{ if (!i) return `M${pt[0]} ${pt[1]}`; const p0 = pts[i-2]||pts[i-1], p1 = pts[i-1], p2 = pt, p3 = pts[i+1]||pt; const c1 = [p1[0]+(p2[0]-p0[0])/6, p1[1]+(p2[1]-p0[1])/6], c2 = [p2[0]-(p3[0]-p1[0])/6, p2[1]-(p3[1]-p1[1])/6]; return `C${c1[0]} ${c1[1]} ${c2[0]} ${c2[1]} ${p2[0]} ${p2[1]}`; }).join(' ');
+  let g = '<defs>' + series.map((s,i)=>`<linearGradient id="ag${i}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${s.f.c}" stop-opacity="${i===0?.32:.12}"/><stop offset="1" stop-color="${s.f.c}" stop-opacity="0"/></linearGradient>`).join('') + '</defs>';
+  for (let k=0;k<=4;k++){ const v = k/4; g += `<line class="gl" x1="${pl}" x2="${W-pr}" y1="${ys(v)}" y2="${ys(v)}"/><text class="ax" x="${pl-8}" y="${ys(v)+4}" text-anchor="end">${k*25}%</text>`; }
+  p.pos.forEach((_,i)=>{ if (n<=10 || i%2===0) g += `<text class="ax" x="${xs(i)}" y="${H-6}" text-anchor="middle">${i+1}</text>`; });
+  series.forEach((s,i)=>{ const pts = s.v.map((v,j)=>[xs(j), ys(v)]); const d = smooth(pts); const len = Math.ceil(pts.reduce((a,pt,j)=>j?a+Math.hypot(pt[0]-pts[j-1][0], pt[1]-pts[j-1][1]):0,0)*1.15+10);
+    g += `<path class="ar" d="${d} L${xs(n-1)} ${ys(0)} L${xs(0)} ${ys(0)} Z" fill="url(#ag${i})"/><path class="ln" d="${d}" stroke="${s.f.c}" style="--l:${len};--dl:${i*.18}s"/>`; });
+  g += `<line class="vl" id="vl" y1="${pt}" y2="${H-pb}"/>` + series.map((s,i)=>`<circle class="pt" id="pt${i}" r="4" fill="${s.f.c}" stroke="#05060b" stroke-width="2"/>`).join('');
+  g += `<rect x="${pl}" y="${pt}" width="${W-pl-pr}" height="${H-pt-pb}" fill="transparent" id="lcHit"/>`;
+  svg.innerHTML = g;
+  $('lcLg').innerHTML = FAM.map(f=>`<span><i style="background:${f.c}"></i>${f.k}</span>`).join('');
+  const tip = $('lcTip');
+  $('lcHit').onmousemove = e => { const b = svg.getBoundingClientRect(); const x = (e.clientX-b.left)*(W/b.width); const i = Math.max(0, Math.min(n-1, Math.round((x-pl)/((W-pl-pr)/(n-1||1)))));
+    const vl = $('vl'); vl.setAttribute('x1', xs(i)); vl.setAttribute('x2', xs(i)); vl.style.opacity = 1;
+    series.forEach((s,k)=>{ const c = $('pt'+k); c.setAttribute('cx', xs(i)); c.setAttribute('cy', ys(s.v[i])); c.style.opacity = 1; });
+    tip.style.opacity = 1; tip.style.left = (xs(i)/W*b.width)+'px'; tip.style.top = (ys(Math.max(...series.map(s=>s.v[i])))/H*260)+'px';
+    tip.innerHTML = `<b>${i+1}번째 칸</b><br>` + series.map(s=>`<span style="color:${s.f.c}">●</span> ${s.f.k} ${Math.round(s.v[i]*100)}%`).join('<br>'); };
+  $('lcHit').onmouseleave = () => { tip.style.opacity = 0; $('vl').style.opacity = 0; series.forEach((s,k)=>$('pt'+k).style.opacity = 0); };
+}
+// ---------- 1번째 칸 도넛
+function donut(){
+  const p = prio(LAST, scope()); const P = p.pos[0]; if (!P) return;
+  const ent = Object.entries(P.c).sort((a,b)=>b[1]-a[1]); const R = 40, C = 2*Math.PI*R; let off = 0;
+  $('dnSvg').innerHTML = `<circle cx="50" cy="50" r="${R}" fill="none" stroke="rgba(255,255,255,.05)" stroke-width="9"/>` + ent.map(([t,v],i)=>{ const f = v/P.n, len = Math.max(0, f*C - 1.2); const s = `<circle class="sg" cx="50" cy="50" r="${R}" fill="none" stroke="${T[t][1]}" stroke-width="9" stroke-dasharray="${len} ${C}" stroke-dashoffset="${-off}" style="--i:${i}"><title>${T[t][0]} ${Math.round(f*100)}%</title></circle>`; off += f*C; return s; }).join('');
+  // 채워지는 효과: 처음엔 0 길이
+  const segs = [...$('dnSvg').querySelectorAll('.sg')]; segs.forEach(s=>{ s.dataset.da = s.getAttribute('stroke-dasharray'); s.setAttribute('stroke-dasharray', `0 ${C}`); s.style.transition = 'stroke-dasharray 1.4s cubic-bezier(.16,1,.3,1)'; s.style.transitionDelay = (+s.style.getPropertyValue('--i'))*0.12 + .2 + 's'; });
+  requestAnimationFrame(()=>requestAnimationFrame(()=>segs.forEach(s=>s.setAttribute('stroke-dasharray', s.dataset.da))));
+  const top = ent[0];
+  $('dnC').innerHTML = Math.round(top[1]/P.n*100) + '%'; $('dnCs').textContent = T[top[0]][0];
+  $('dnTag').textContent = `키워드 ${P.n}개`;
+  $('dnL').innerHTML = ent.slice(0,3).map(([t,v])=>`<div><div class="n num">${Math.round(v/P.n*100)}%</div><div class="k"><i style="background:${T[t][1]}"></i>${T[t][0]}</div></div>`).join('');
+}
+// ---------- 우선순위 레이스 (순위 바뀌면 막대가 자리 이동)
+const raceEls = {};
+function race(){
+  const p = prio(LAST, scope()); const box = $('race'); const rowH = 44;
+  box.style.height = (p.list.length*rowH) + 'px';
+  $('raceTag').textContent = scopeName();
+  const seen = new Set();
+  p.list.forEach((x,i)=>{ seen.add(x.t); let el = raceEls[x.t];
+    if (!el){ el = document.createElement('div'); el.className = 'ri'; el.innerHTML = `<span class="no"></span><span class="nm">${sq(x.t)}${T[x.t][0]}</span><div class="tr"><div style="width:0;background:linear-gradient(90deg,${T[x.t][1]},${T[x.t][1]}aa)"></div></div><span class="vv"></span>`; el.style.transform = `translateY(${p.list.length*rowH}px)`; el.style.opacity = 0; box.appendChild(el); raceEls[x.t] = el; }
+    el.querySelector('.no').textContent = i+1; el.querySelector('.vv').innerHTML = `<b>${fmt(x.avg)}</b>번째`;
+    box.insertBefore(el, box.children[i] || null);
+    requestAnimationFrame(()=>{ el.style.opacity = 1; el.style.transform = `translateY(${i*rowH}px)`; el.querySelector('.tr div').style.width = Math.max(4, (L()+1-x.avg)/L()*100) + '%'; });
+  });
+  Object.entries(raceEls).forEach(([t,el])=>{ if (!seen.has(t)){ el.style.opacity = 0; } });
+}
+// ---------- 업종·지역 비교 (블로그/카페 첫 등장 쌍막대)
+function cmpChart(){
+  let rows = cmpRows();
+  if (st.sort==='blog') rows.sort((a,b)=>a.bf-b.bf); else if (st.sort==='cafe') rows.sort((a,b)=>a.cf-b.cf); else if (st.by==='rg') rows.sort((a,b)=>b.n-a.n);
+  rows = rows.slice(0, 18);
+  const dim = st.by==='rg' ? '지역' : st.grp==='전체' ? '분류' : '카테고리';
+  $('cmpT').textContent = `${dim}별 첫 등장 칸`;
+  $('cmpS').textContent = `${modeTxt()} · 막대를 누르면 그 ${dim}만 봐요`;
+  const h = v => Math.max(4, (L()+1-v)/L()*100);
+  $('vb').innerHTML = rows.map((r,k)=>`<div class="col" data-n="${esc(r.name)}" title="${esc(r.name)} · 블로그 ${fmt(r.bf)}번째 · 카페 ${fmt(r.cf)}번째"><div class="pair"><div class="bar" style="height:${h(r.bf)}%;background:linear-gradient(180deg,#8F93FF,#5B5FEF);--k:${k}"></div><div class="bar" style="height:${h(r.cf)}%;background:linear-gradient(180deg,#FFD08a,#FFB547);opacity:.85;--k:${k}"></div></div></div>`).join('');
+  $('vbl').innerHTML = rows.map(r=>`<span title="${esc(r.name)}">${esc(r.name)}</span>`).join('');
+  $('vb').querySelectorAll('.col').forEach(c=>c.onclick=()=>{ const v = c.dataset.n; if (st.by==='rg') st.rg = v; else if (st.grp==='전체') { st.grp = v; st.cat='전체'; } else st.cat = v; update(); window.scrollTo({top:0, behavior:'smooth'}); });
+}
+const modeTxt = () => st.mode==='top' ? '상위 10칸' : '전체 칸';
+// ---------- 키워드 표 (페이지)
+function table(){
+  const det = DET(); let ks = listKws();
+  if (st.q) ks = ks.filter(k=>k.kw.includes(st.q) || k.cat.includes(st.q) || k.rg.includes(st.q));
+  const info = ks.map(k=>{ const cs = cardsOf(D.days[LAST]?.[k.kw]); const bi = cs.findIndex(t=>'BIO'.includes(t)), ci = cs.findIndex(t=>'CD'.includes(t)); return {k, cs, bi: bi<0?99:bi+1, ci: ci<0?99:ci+1}; });
+  if (st.tsort==='blog') info.sort((a,b)=>a.bi-b.bi); if (st.tsort==='cafe') info.sort((a,b)=>a.ci-b.ci);
+  const per = 15, pages = Math.max(1, Math.ceil(info.length/per)); st.page = Math.min(st.page, pages-1);
+  const rows = info.slice(st.page*per, st.page*per+per);
+  const lab = v => v===99 ? '<span class="mut">없음</span>' : v+'번째';
+  $('tbl').innerHTML = '<tr><th>#</th><th>키워드</th><th class="hide-m">분류</th><th class="hide-m">지역</th><th>1 — 10번째 칸</th><th>블로그 첫</th><th>카페 첫</th></tr>' + rows.map((r,j)=>`<tr class="r" data-kw="${esc(r.k.kw)}" style="--j:${j}"><td class="mut">${st.page*per+j+1}</td><td class="kw">${esc(r.k.kw)}</td><td class="hide-m"><span class="pill"><i style="background:#5B5FEF"></i>${esc(r.k.cat)}</span></td><td class="hide-m mut">${esc(r.k.rg)}</td><td>${r.cs.length?`<div class="sqs">${r.cs.slice(0,10).map(t=>sq(t)).join('')}</div>`:'<span class="mut">수집 전</span>'}</td><td>${lab(r.bi)}</td><td>${lab(r.ci)}</td></tr>`).join('');
+  $('tbl').querySelectorAll('tr.r').forEach(tr=>tr.onclick=()=>openDrawer(tr.dataset.kw));
+  const btn = (i,l,dis,on) => `<button data-p="${i}"${dis?' disabled':''} class="${on?'on':''}">${l}</button>`;
+  let nums = []; for (let i=Math.max(0,st.page-2); i<Math.min(pages, st.page+3); i++) nums.push(btn(i, i+1, false, i===st.page));
+  $('pg').innerHTML = `<span>${info.length}개 중 ${info.length?st.page*per+1:0}–${Math.min(info.length, st.page*per+per)}</span><div class="b">${btn(st.page-1,'‹',st.page===0)}${nums.join('')}${btn(st.page+1,'›',st.page>=pages-1)}</div>`;
+  $('pg').querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{ st.page = +b.dataset.p; table(); });
+}
+// ---------- 날짜별 + 변동
+function rankChips(p, max){ return '<div class="rkc">' + p.list.slice(0,max||6).map((x,i)=>`<span class="it${i===0?' first':''}">${sq(x.t)}${T[x.t][0]}<em>${fmt(x.avg)}</em></span>`).join('') + '</div>'; }
+function history(){
+  const ks = scope(); $('histTag').textContent = scopeName();
+  $('hist').innerHTML = DATES.slice().reverse().slice(0,14).map(d=>{ const p = prio(d, ks); return `<div class="hrow"><span class="d">${md(d)}</span>${rankChips(p, 6)}</div>`; }).join('') + (DATES.length<3 ? `<div class="empty">기록 시작 ${md(DATES[0])} · 매일 새벽 수집해서 한 줄씩 쌓여요</div>` : '');
+  const out = [];
+  for (let i=1;i<DATES.length;i++){ const a = DATES[i-1], b = DATES[i]; const common = ks.filter(k=>D.days[a]?.[k] && D.days[b]?.[k]); if (!common.length) continue;
+    const pa = prio(a, common), pb = prio(b, common);
+    const parts = pb.list.map((x,j)=>{ const k = pa.list.findIndex(y=>y.t===x.t); const dv = k>=0 ? x.avg - pa.list[k].avg : 0;
+      if (k<0) return `<span class="up">${T[x.t][0]} 새로 ${j+1}위</span>`; if (k!==j && j<6) return `<span class="${j<k?'up':'dnn'}">${T[x.t][0]} ${k+1}위→${j+1}위</span>`; if (Math.abs(dv)>=1) return `<span class="${dv<0?'up':'dnn'}">${T[x.t][0]} ${dv<0?'':'+'}${dv.toFixed(1)}칸</span>`; return ''; }).filter(Boolean);
+    if (parts.length) out.push(`<div><b style="margin-right:8px">${md(b)}</b>${parts.join(' · ')}</div>`); }
+  $('chg').innerHTML = out.reverse().join('') || `<div class="empty">${DATES.length<2?'두 번째 날부터 순위 변동이 기록돼요.':'순위 변동 없음'}</div>`;
+}
+// ---------- 상세 서랍
+function openDrawer(kw){
+  const k = KWS.find(x=>x.kw===kw); if (!k) return;
+  $('dCat').textContent = `${k.grp} · ${k.cat} · ${k.rg}`; $('dTitle').textContent = kw;
+  $('dHint').innerHTML = `${md(LAST)} 기준 · <a href="https://m.search.naver.com/search.naver?query=${encodeURIComponent(kw)}" target="_blank" rel="noopener">네이버에서 직접 보기 ↗</a>`;
+  const f = D.days[LAST]?.[kw] || []; let j = 0;
+  $('dFlow').innerHTML = f.map(t=> isCard(t) ? sq(t,'',j++) : `<span class="sec">${esc(t)}</span>`).join('') || '<span class="empty">아직 수집 전이에요</span>';
+  $('dHist').innerHTML = DATES.slice().reverse().map(d=>{ const cs = cardsOf(D.days[d]?.[kw]); return cs.length ? `<div class="hrow"><span class="d">${md(d)}</span><div class="sqs" style="flex-wrap:wrap">${cs.slice(0,20).map((t,i)=>sq(t, i>=10?'fd':'')).join('')}</div></div>` : ''; }).join('');
+  const cd = DET()[kw];
+  $('dList').innerHTML = !window.DETAIL ? '<tr><td class="mut">글 목록 불러오는 중…</td></tr>' : !cd ? '<tr><td class="mut">상세 없음</td></tr>' : '<tr><th>#</th><th>종류</th><th>출처</th><th>글 제목</th></tr>' + cd.map((c,i)=>`<tr><td class="mut">${i+1}</td><td style="white-space:nowrap">${sq(c.t)} ${T[c.t]?.[0]||''}</td><td>${esc(c.n)}</td><td class="ti">${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:`<span class="mut">${esc(c.ti||'광고 카드')}</span>`}</td></tr>`).join('');
+  $('drawer').classList.add('on'); $('scrim').classList.add('on'); $('drawer').scrollTop = 0; $('drawer').dataset.kw = kw;
+}
+function closeDrawer(){ $('drawer').classList.remove('on'); $('scrim').classList.remove('on'); }
+window.__detailLoaded = () => { const kw = $('drawer').dataset.kw; if ($('drawer').classList.contains('on') && kw) openDrawer(kw); };
+
+// ---------- 상태
+function statusBox(){
+  $('stUpd').textContent = '업데이트 ' + new Date(D.updated).toLocaleString('ko-KR',{timeZone:'Asia/Seoul', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'});
+  const now = new Date(Date.now()+9*3600e3); const h = now.getUTCHours(); const nxt = [1,3,5,7].find(x=>x>h) ?? 1;
+  $('stNext').textContent = `키워드 ${KWS.length}개 · 매일 새벽 1·3·5·7시 수집 · 다음 ${nxt}시`;
+}
+function render(){ syncControls(); hero(); kpis(); lineChart(); donut(); race(); cmpChart(); table(); history(); statusBox(); }
+initControls(); render();
+requestAnimationFrame(()=>requestAnimationFrame(()=>$('hero').classList.add('go')));
+// 패널: 화면에 들어오면 블러 걷히며 등장 + 차트 애니메이션
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting){ e.target.classList.add('in'); setTimeout(()=>e.target.classList.add('go'), 150); io.unobserve(e.target); } }), {threshold:.15});
+document.querySelectorAll('.panel').forEach(p=>io.observe(p));
+document.querySelectorAll('.panel').forEach(c=>c.addEventListener('pointermove', e=>{ const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX-r.left)+'px'); c.style.setProperty('--my', (e.clientY-r.top)+'px'); }));
+// 사이드 메뉴 활성 표시
+(function(){ const links = [...document.querySelectorAll('#navMain a')]; const io2 = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting) links.forEach(l=>l.classList.toggle('on', l.dataset.s===e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'}); ['hero','p-pos','p-race','p-cmp','p-kw','p-hist'].forEach(id=>io2.observe($(id))); })();
+addEventListener('resize', ()=>{ clearTimeout(window.__rz); window.__rz = setTimeout(()=>{ lineChart(); leads(); }, 200); });
+setTimeout(()=>{ const s = document.createElement('script'); s.src = 'detail.js?v=' + D.updated; document.body.appendChild(s); }, 800);
 </script>
 </body>
 </html>
