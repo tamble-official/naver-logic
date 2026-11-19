@@ -59,7 +59,9 @@ h1 em{font-style:normal;background:linear-gradient(100deg,#7f83ff 0%,#b9a4ff 35%
 /* toolbar */
 .toolbar{display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:20px;border:1px solid var(--line);background:rgba(16,17,28,.55);backdrop-filter:blur(18px);margin-bottom:18px}
 .trow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.tl{font-size:11px;color:var(--t3);font-weight:700;letter-spacing:1.4px;width:44px;flex:none}
+.tl{font-size:11px;color:var(--t3);font-weight:700;letter-spacing:1px;width:58px;flex:none}
+#rgSel{min-width:150px}
+.catrow-hide{display:none!important}
 .chips{display:flex;gap:6px;flex-wrap:wrap;flex:1}
 .chip{border:1px solid var(--line2);background:rgba(255,255,255,.02);border-radius:999px;padding:6px 13px;font-size:13px;cursor:pointer;color:var(--t2);font-family:inherit;white-space:nowrap;transition:color .3s var(--ease),background-color .35s var(--ease),border-color .35s var(--ease),transform .25s var(--ease),box-shadow .35s var(--ease)}
 .chip:hover{color:var(--t1);border-color:rgba(155,140,255,.45)}
@@ -224,8 +226,9 @@ details.how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
 </section>
 
 <div class="toolbar rv" style="--rd:.15s">
-  <div class="trow"><span class="tl">업종</span><div class="chips" id="catChips"></div></div>
-  <div class="trow"><span class="tl">보기</span><select id="kwSel"></select><span class="seg" id="rgSeg"></span><span class="seg" id="modeSeg"></span></div>
+  <div class="trow"><span class="tl">분류</span><span class="seg" id="grpSeg"></span></div>
+  <div class="trow" id="catRow"><span class="tl">카테고리</span><div class="chips" id="catChips"></div></div>
+  <div class="trow"><span class="tl">보기</span><select id="rgSel"></select><select id="kwSel"></select><span class="seg" id="modeSeg"></span></div>
 </div>
 
 <section id="sec-ov" class="gh">
@@ -247,10 +250,10 @@ details.how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
       <div class="bigbar" id="bigBar"></div>
       <div class="legend fx" id="legend"></div>
     </div>
-    <div class="m3 fx">
-      <div class="card hi rv" style="--rd:.36s" id="hiBlog"></div>
-      <div class="card rv" style="--rd:.42s" id="hiCafe"></div>
-      <div class="card rv" style="--rd:.48s" id="hiAd"></div>
+    <div class="m3">
+      <div class="card hi rv fx" style="--rd:.36s" id="hiBlog"></div>
+      <div class="card rv fx" style="--rd:.42s" id="hiCafe"></div>
+      <div class="card rv fx" style="--rd:.48s" id="hiAd"></div>
     </div>
   </div>
 </section>
@@ -271,8 +274,8 @@ details.how ul{margin:10px 0 0;padding-left:18px;line-height:1.9}
 </section>
 
 <section id="sec-cat" class="card rv" style="margin-top:16px">
-  <div class="ch"><span class="lbl">BY INDUSTRY</span><span class="seg" id="sortSeg"></span></div>
-  <div class="h3">업종별 비교</div>
+  <div class="ch"><span class="lbl" id="cmpLbl">BY INDUSTRY</span><span style="display:flex;gap:8px;flex-wrap:wrap"><span class="seg" id="bySeg"></span><span class="seg" id="sortSeg"></span></span></div>
+  <div class="h3" id="cmpTitle">업종별 비교</div>
   <div class="sub" id="cmpHint"></div>
   <div id="cmp" class="fx" style="margin-top:10px"></div>
 </section>
@@ -333,10 +336,16 @@ const GROUPS = [
  {k:'웹·지식iN·영상', e:'WEB', t:'WKV', c1:'#38C9F0', c2:'#34D399'},
  {k:'광고', e:'ADS', t:'A', c1:'#8a90a6', c2:'#4B5163'}
 ];
-const KWS = D.kws; const CATS = [...new Set(KWS.map(k=>k.cat))];
+const KWS = D.kws; const GRPS = [...new Set(KWS.map(k=>k.grp))];
+const SEC = D.sec || {};
+// 압축 기록 풀기: 대문자 = 칸, 소문자 = 섹션
+for (const dk of Object.keys(D.days)) for (const kw of Object.keys(D.days[dk])) { const v = D.days[dk][kw]; if (typeof v === 'string') D.days[dk][kw] = [...v].map(ch => /[A-Z]/.test(ch) ? ch : (SEC[ch] || '기타 섹션')); }
 const DATES = Object.keys(D.days).sort();
-const LAST = DATES[DATES.length-1], PREV = DATES[DATES.length-2];
-const st = {cat:'전체', kw:null, mode:'top', rg:'전체', sort:'base', open:new Set()};
+const LAST = D.last || DATES[DATES.length-1], PREV = DATES[DATES.indexOf(LAST)-1];
+const st = {grp:'전체', cat:'전체', kw:null, mode:'top', rg:'전체', sort:'base', by:'cat', open:new Set()};
+const DET = () => (window.DETAIL && window.DETAIL.d) || {};
+const catsOf = g => [...new Set(KWS.filter(k=>g==='전체'||k.grp===g).map(k=>k.cat))];
+const keyOf = k => st.grp==='전체' ? k.grp : k.cat;
 const $ = id => document.getElementById(id);
 const esc = s => String(s||'').replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const isCard = t => t.length===1 && T[t];
@@ -344,9 +353,16 @@ const cardsOf = f => (f||[]).filter(isCard);
 const md = d => d ? d.slice(5).replace('-','/') : '';
 const modeTxt = () => st.mode==='top' ? '상위 10칸' : '결과 전체';
 function sq(t, cls, txt, tip, j){ return `<span class="sq ${cls||''}${T[t][2]?' lt':''}" style="background:${T[t][1]}${j!==undefined?';--j:'+j:''}" title="${esc(tip||T[t][0])}">${txt===undefined?T[t][3]:txt}</span>`; }
-function listKws(){ return KWS.filter(k=>(st.cat==='전체'||k.cat===st.cat)&&(st.rg==='전체'||k.rg===st.rg)); }
+function listKws(){ return KWS.filter(k=>(st.grp==='전체'||k.grp===st.grp)&&(st.cat==='전체'||k.cat===st.cat)&&(st.rg==='전체'||k.rg===st.rg)); }
 function scopeKws(){ return st.kw ? [st.kw] : listKws().map(k=>k.kw); }
-function scopeName(){ if (st.kw) return st.kw; return (st.cat==='전체'?'전체 업종':st.cat) + (st.rg==='지역'?' · 청주':st.rg==='전국'?' · 전국':''); }
+function scopeName(){ if (st.kw) return st.kw; const a = st.cat!=='전체' ? st.cat : (st.grp==='전체' ? '전체' : st.grp); return a + (st.rg!=='전체' ? ' · '+st.rg : ''); }
+// 비교 행: 전체면 대분류별, 대분류 고르면 카테고리별, 지역별 보기면 지역별
+function cmpRows(){
+  const base = KWS.filter(k=>(st.grp==='전체'||k.grp===st.grp)&&(st.by==='rg' ? (st.cat==='전체'||k.cat===st.cat) : (st.rg==='전체'||k.rg===st.rg)));
+  const keyf = st.by==='rg' ? (k=>k.rg) : (st.grp==='전체' ? (k=>k.grp) : (k=>k.cat));
+  const groups = {}; base.forEach(k=>{ (groups[keyf(k)] ||= []).push(k.kw); });
+  return Object.entries(groups).map(([name, ks])=>{ const r = count(LAST, ks); return {name, r, n:ks.length, b:share(r,'BIO'), c:share(r,'CD'), a:share(r,'A')}; });
+}
 function count(date, kws){
   const c = {}; let n = 0, kn = 0;
   for (const kw of kws){ const f = D.days[date]?.[kw]; if (!f) continue; kn++;
@@ -367,7 +383,7 @@ function stack(r, i){
 // 재생: 클래스 go를 껐다 켜서 애니메이션 다시
 function replay(el){ if (!el) return; el.classList.remove('go'); void el.offsetWidth; requestAnimationFrame(()=>el.classList.add('go')); }
 
-$('updPill').textContent = '업데이트 ' + new Date(D.updated).toLocaleString('ko-KR',{timeZone:'Asia/Seoul', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) + ' · ' + DATES.length + '일째';
+$('updPill').textContent = '키워드 ' + KWS.length + '개 · 업데이트 ' + new Date(D.updated).toLocaleString('ko-KR',{timeZone:'Asia/Seoul', month:'numeric', day:'numeric', hour:'2-digit', minute:'2-digit'}) + ' · ' + DATES.length + '일째';
 
 // ----- 컨트롤 (한 번 만들고 상태만 바꿈 → 부드러운 전환)
 function mkSeg(el, items, key, after){
@@ -383,17 +399,24 @@ function syncSeg(el, key, instant){
   if (instant) requestAnimationFrame(()=>th.style.transition='');
 }
 function initControls(){
-  $('catChips').innerHTML = ['전체', ...CATS].map(c=>`<button class="chip" data-c="${esc(c)}">${esc(c)}</button>`).join('');
-  $('catChips').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ if (st.cat===b.dataset.c && !st.kw) return; st.cat=b.dataset.c; st.kw=null; update(); });
-  mkSeg($('rgSeg'), [['전체','전체'],['지역','청주'],['전국','전국']], 'rg', ()=>{ st.kw=null; update(); });
+  mkSeg($('grpSeg'), [['전체','전체'], ...GRPS.map(g=>[g,g])], 'grp', ()=>{ st.cat='전체'; st.kw=null; st.rg='전체'; if (st.grp!=='지역 업종') st.by='cat'; update(); });
   mkSeg($('modeSeg'), [['top','상위 10칸'],['all','결과 전체']], 'mode', ()=>update());
   mkSeg($('sortSeg'), [['base','기본'],['blog','블로그순'],['cafe','카페순']], 'sort', ()=>{ const el=$('cmp'); el.classList.add('dim'); setTimeout(()=>{ compare(); el.classList.remove('dim'); replay($('sec-cat')); }, 220); });
+  mkSeg($('bySeg'), [['cat','업종별'],['rg','지역별']], 'by', ()=>{ const el=$('cmp'); el.classList.add('dim'); setTimeout(()=>{ compare(); el.classList.remove('dim'); replay($('sec-cat')); }, 220); });
+  $('rgSel').onchange = e => { st.rg = e.target.value; st.kw = null; update(); };
   $('kwSel').onchange = e => { st.kw = e.target.value || null; update(); if (st.kw) setTimeout(()=>$('detailWrap').scrollIntoView({behavior:'smooth'}), 300); };
 }
 function syncControls(){
-  $('catChips').querySelectorAll('[data-c]').forEach(b=>b.classList.toggle('on', b.dataset.c===st.cat));
-  $('kwSel').innerHTML = `<option value="">키워드 전체 합계 (${listKws().length}개)</option>` + listKws().map(k=>`<option value="${esc(k.kw)}"${st.kw===k.kw?' selected':''}>${esc(k.kw)}${st.cat==='전체'?'  · '+esc(k.cat):''}</option>`).join('');
-  syncSeg($('rgSeg'),'rg'); syncSeg($('modeSeg'),'mode'); syncSeg($('sortSeg'),'sort');
+  const cats = catsOf(st.grp);
+  $('catRow').classList.toggle('catrow-hide', st.grp==='전체');
+  $('catChips').innerHTML = ['전체', ...cats].map(c=>`<button class="chip${st.cat===c?' on':''}" data-c="${esc(c)}">${c==='전체'?'전체':esc(c)} <span style="opacity:.55;font-size:11px">${c==='전체'?KWS.filter(k=>k.grp===st.grp).length:KWS.filter(k=>k.grp===st.grp&&k.cat===c).length}</span></button>`).join('');
+  $('catChips').querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{ if (st.cat===b.dataset.c && !st.kw) return; st.cat=b.dataset.c; st.kw=null; update(); });
+  const regBase = KWS.filter(k=>(st.grp==='전체'||k.grp===st.grp)&&(st.cat==='전체'||k.cat===st.cat));
+  const regs = Object.entries(regBase.reduce((m,k)=>(m[k.rg]=(m[k.rg]||0)+1,m),{})).sort((a,b)=>b[1]-a[1]);
+  $('rgSel').innerHTML = '<option value="전체">지역 전체</option>' + regs.map(([r,n])=>`<option value="${esc(r)}"${st.rg===r?' selected':''}>${esc(r)} (${n})</option>`).join('');
+  $('kwSel').innerHTML = `<option value="">키워드 전체 합계 (${listKws().length}개)</option>` + listKws().map(k=>`<option value="${esc(k.kw)}"${st.kw===k.kw?' selected':''}>${esc(k.kw)} · ${esc(k.cat)}</option>`).join('');
+  $('bySeg').style.display = st.grp==='지역 업종' ? '' : 'none';
+  syncSeg($('grpSeg'),'grp'); syncSeg($('modeSeg'),'mode'); syncSeg($('sortSeg'),'sort'); syncSeg($('bySeg'),'by');
 }
 // 필터 바꿀 때: 흐려졌다가 새 숫자로 다시 차오름
 function update(){
@@ -428,12 +451,12 @@ function overview(){
   $('eq').innerHTML = GROUPS.map((g,i)=>`${i?'<span class="eqo">+</span>':''}<div class="eqi"><div class="k">${g.e}</div><div class="v" style="color:${i===0?'#c3c5ff':i===1?'#ffc069':'#f4f5fa'}">${odo(Math.round(share(r,g.t)))}<small>%</small></div></div>`).join('') + `<span class="eqo">=</span><div class="eqi"><div class="k">SLOTS</div><div class="v">${odo(r.n)}<small>칸</small></div></div>`;
   $('bigBar').innerHTML = ORDER.filter(t=>r.c[t]).map(t=>`<div style="width:${r.c[t]/r.n*100}%;background:${T[t][1]}" title="${T[t][0]} ${Math.round(r.c[t]/r.n*100)}%"></div>`).join('');
   $('legend').innerHTML = ORDER.filter(t=>t!=='X').map(t=>`<span class="lg"><i style="background:${T[t][1]}"></i>${T[t][0]} <b style="color:var(--t1)">${r.n?Math.round((r.c[t]||0)/r.n*100):0}%</b></span>`).join('');
-  const rows = CATS.map(cat=>{ const ks = KWS.filter(k=>k.cat===cat && (st.rg==='전체'||k.rg===st.rg)).map(k=>k.kw); const rr = count(LAST, ks); return {cat, b:share(rr,'BIO'), c:share(rr,'CD'), a:share(rr,'A')}; });
+  const rows = cmpRows().map(x=>({cat:x.name, b:x.b, c:x.c, a:x.a}));
   const card = (key, title, sub, hi, col) => { const s = rows.slice().sort((x,y)=>y[key]-x[key]); const top = s[0];
     return `<div class="lbl">${title}</div><div class="big">${esc(top.cat)}<small>${Math.round(top[key])}%</small></div><div class="sub" style="${hi?'color:rgba(255,255,255,.85)':''}">${sub}</div><div class="rank">${s.slice(0,4).map((x,i)=>`<div class="rk"><span>${esc(x.cat)}</span><div class="b"><div class="fill" style="width:${x[key]}%;--i:${i};background:${hi?'#fff':col}"></div></div><em>${Math.round(x[key])}</em></div>`).join('')}</div>`; };
-  $('hiBlog').innerHTML = card('b','BLOG FRIENDLY','블로그로 들어갈 자리가 가장 많은 업종', true);
+  $('hiBlog').innerHTML = card('b','BLOG FRIENDLY','블로그로 들어갈 자리가 가장 많은 '+(st.by==='rg'?'지역':st.grp==='전체'?'분류':'카테고리'), true);
   $('hiCafe').innerHTML = card('c','CAFE HEAVY','카페 글이 자리를 가장 많이 차지', false, 'linear-gradient(90deg,#FFB547,#FF7A45)');
-  $('hiAd').innerHTML = card('a','AD HEAVY','광고 비중이 가장 큰 업종', false, 'linear-gradient(90deg,#9aa0b4,#4B5163)');
+  $('hiAd').innerHTML = card('a','AD HEAVY','광고 비중이 가장 큰 '+(st.by==='rg'?'지역':st.grp==='전체'?'분류':'카테고리'), false, 'linear-gradient(90deg,#9aa0b4,#4B5163)');
 }
 function daily(){
   const kws = scopeKws();
@@ -442,11 +465,16 @@ function daily(){
   if (DATES.length < 3) $('daily').innerHTML += `<div class="sub" style="margin-top:10px">기록 시작 ${md(DATES[0])} · 매일 아침 한 줄씩 쌓여요.</div>`;
 }
 function compare(){
-  $('cmpHint').textContent = md(LAST) + ' · ' + modeTxt() + ' · 업종 이름을 누르면 그 업종만 봐요';
-  let rows = CATS.map(cat=>{ const ks = KWS.filter(k=>k.cat===cat && (st.rg==='전체'||k.rg===st.rg)).map(k=>k.kw); const r = count(LAST, ks); return {cat, r, b:share(r,'BIO'), c:share(r,'CD')}; });
+  const dim = st.by==='rg' ? '지역' : st.grp==='전체' ? '분류' : '카테고리';
+  $('cmpLbl').textContent = st.by==='rg' ? 'BY REGION' : st.grp==='전체' ? 'BY GROUP' : 'BY CATEGORY';
+  $('cmpTitle').textContent = dim + '별 비교';
+  $('cmpHint').textContent = md(LAST) + ' · ' + modeTxt() + (st.by==='rg' ? ' · ' + (st.cat==='전체'?'지역 업종 전체':st.cat) + ' 기준' : '') + ' · 이름을 누르면 그것만 봐요';
+  let rows = cmpRows();
   if (st.sort==='blog') rows.sort((x,y)=>y.b-x.b); if (st.sort==='cafe') rows.sort((x,y)=>y.c-x.c);
-  $('cmp').innerHTML = rows.map(({cat,r,b,c},i)=>`<div class="row"><div class="rl cl${st.cat===cat?' sel':''}" data-cc="${esc(cat)}">${esc(cat)}</div>${stack(r,i)}<div class="rs">블로그 <span class="g">${Math.round(b)}%</span> · 카페 <span class="o">${Math.round(c)}%</span></div></div>`).join('');
-  document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{st.cat=b.dataset.cc; st.kw=null; window.scrollTo({top:0,behavior:'smooth'}); update();});
+  if (st.sort==='base' && st.by==='rg') rows.sort((x,y)=>y.n-x.n);
+  const selName = st.by==='rg' ? st.rg : st.grp==='전체' ? st.grp : st.cat;
+  $('cmp').innerHTML = rows.map(({name,r,n,b,c},i)=>`<div class="row"><div class="rl cl${selName===name?' sel':''}" data-cc="${esc(name)}">${esc(name)} <span style="color:var(--t3);font-size:11px">${n}</span></div>${stack(r,i)}<div class="rs">블로그 <span class="g">${Math.round(b)}%</span> · 카페 <span class="o">${Math.round(c)}%</span></div></div>`).join('');
+  document.querySelectorAll('[data-cc]').forEach(b=>b.onclick=()=>{ const v = b.dataset.cc; if (st.by==='rg') st.rg = v; else if (st.grp==='전체') { st.grp = v; st.cat='전체'; } else st.cat = v; st.kw=null; window.scrollTo({top:0,behavior:'smooth'}); update(); });
 }
 function changes(){
   const kws = scopeKws(); const out = [];
@@ -461,21 +489,22 @@ function changes(){
   $('chg').innerHTML = out.reverse().join('') || `<div class="empty">${DATES.length<2?'내일 두 번째 기록이 쌓이면 비교가 시작돼요.':'큰 변동 없음'}</div>`;
 }
 function kwTable(animGroup){
-  const det = D.detail[LAST] || {};
+  const det = DET();
   const ks = listKws(); const all = st.cat==='전체';
-  $('kwPill').textContent = (st.cat==='전체'?'전체 업종':st.cat) + ' · ' + ks.length + '개';
+  $('kwPill').textContent = scopeName() + ' · ' + ks.length + '개';
   let html = '<tr><th>KEYWORD</th><th>1 — 10</th><th class="hide-m">11 — 15</th><th>TOP 10 중</th></tr>';
   let lastCat = null, gi = 0, j = 0;
   for (const k of ks){
-    if (all && k.cat!==lastCat){
-      lastCat = k.cat; j = 0;
-      const gk = ks.filter(x=>x.cat===k.cat).map(x=>x.kw); const gr = count(LAST, gk); const op = st.open.has(k.cat);
-      html += `<tr class="grp" data-g="${esc(k.cat)}"><td style="white-space:nowrap"><span class="car${op?' op':''}">›</span>${esc(k.cat)}<span class="tag">${gk.length}</span></td><td colspan="2" class="hide-m"><div style="max-width:560px">${stack(gr, gi++)}</div></td><td style="white-space:nowrap"><span class="pb g">블로그 ${Math.round(share(gr,'BIO'))}%</span><span class="pb o">카페 ${Math.round(share(gr,'CD'))}%</span></td></tr>`;
+    const gkey = st.grp==='전체' ? k.grp+' · '+k.cat : k.cat;
+    if (all && gkey!==lastCat){
+      lastCat = gkey; j = 0;
+      const gk = ks.filter(x=>(st.grp==='전체' ? x.grp+' · '+x.cat : x.cat)===gkey).map(x=>x.kw); const gr = count(LAST, gk); const op = st.open.has(gkey);
+      html += `<tr class="grp" data-g="${esc(gkey)}"><td style="white-space:nowrap"><span class="car${op?' op':''}">›</span>${esc(gkey)}<span class="tag">${gk.length}</span></td><td colspan="2" class="hide-m"><div style="max-width:560px">${stack(gr, gi++)}</div></td><td style="white-space:nowrap"><span class="pb g">블로그 ${Math.round(share(gr,'BIO'))}%</span><span class="pb o">카페 ${Math.round(share(gr,'CD'))}%</span></td></tr>`;
     }
-    if (all && !st.open.has(k.cat)) continue;
+    if (all && !st.open.has(gkey)) continue;
     const f = D.days[LAST]?.[k.kw];
-    const nm = `<a class="kwl" data-kd="${esc(k.kw)}">${esc(k.kw)}</a><span class="tag">${k.rg==='지역'?'청주':'전국'}</span>`;
-    const anim = !all || animGroup===k.cat;
+    const nm = `<a class="kwl" data-kd="${esc(k.kw)}">${esc(k.kw)}</a><span class="tag">${esc(k.rg)}</span>`;
+    const anim = !all || animGroup===gkey;
     const rowAttr = anim ? ` style="--j:${j++}"` : ' style="animation:none"';
     if (!f){ html += `<tr class="kr"${rowAttr}><td>${nm}</td><td colspan="3" class="sub">수집 실패</td></tr>`; continue; }
     const cs = cardsOf(f); const cd = det[k.kw] || [];
@@ -496,12 +525,15 @@ function detail(){
   const f = D.days[LAST]?.[st.kw] || []; let j = 0;
   $('dFlow').innerHTML = f.map(t=> isCard(t) ? sq(t,'',undefined,undefined,j++) : `<span class="sec">${esc(t)}</span>`).join('') || '<span class="empty">기록 없음</span>';
   $('dHist').innerHTML = DATES.slice().reverse().map(d=>{ const cs = cardsOf(D.days[d]?.[st.kw]); return `<div class="row"><div class="rl" style="width:56px"><b>${md(d)}</b></div><div class="sqs" style="flex-wrap:wrap">${cs.slice(0,20).map((t,j)=>sq(t, j>=10?'fd':'')).join('')}</div></div>`; }).join('');
-  const cd = (D.detail[LAST]||{})[st.kw] || [];
-  $('dList').innerHTML = '<tr><th style="width:48px">#</th><th style="width:130px">TYPE</th><th>SOURCE</th><th>TITLE</th></tr>' + cd.map((c,j)=>`<tr class="kr" style="--j:${Math.min(j,20)}"><td><b>${j+1}</b></td><td style="white-space:nowrap">${sq(c.t,'mini')} ${T[c.t]?.[0]||c.t}</td><td>${esc(c.n)}</td><td class="ti">${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:'<span class="sub">'+esc(c.ti||'광고 카드')+'</span>'}</td></tr>`).join('');
+  const cd = DET()[st.kw] || []; if (!window.DETAIL) $('dList').innerHTML = '<tr><td class="sub">글 목록 불러오는 중…</td></tr>';
+  if (window.DETAIL) $('dList').innerHTML = '<tr><th style="width:48px">#</th><th style="width:130px">TYPE</th><th>SOURCE</th><th>TITLE</th></tr>' + cd.map((c,j)=>`<tr class="kr" style="--j:${Math.min(j,20)}"><td><b>${j+1}</b></td><td style="white-space:nowrap">${sq(c.t,'mini')} ${T[c.t]?.[0]||c.t}</td><td>${esc(c.n)}</td><td class="ti">${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:'<span class="sub">'+esc(c.ti||'광고 카드')+'</span>'}</td></tr>`).join('');
 }
 $('dClose').onclick = () => { st.kw = null; update(); };
 function render(){ syncControls(); hero(); overview(); daily(); compare(); changes(); kwTable(); detail(); }
 initControls(); render();
+// 칸 상세(이름·제목·링크)는 용량이 커서 화면이 뜬 다음에 불러옴
+window.__detailLoaded = () => { if (st.kw) detail(); };
+setTimeout(()=>{ const s = document.createElement('script'); s.src = 'detail.js?v=' + D.updated; document.body.appendChild(s); }, 600);
 
 // 스크롤하면 하나씩 블러 걷히며 등장
 const io = new IntersectionObserver(es=>{ es.forEach(e=>{ if (e.isIntersecting){ e.target.classList.add('in'); setTimeout(()=>e.target.classList.add('go'), 120); io.unobserve(e.target); } }); }, {threshold:.12});
