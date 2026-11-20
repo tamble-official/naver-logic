@@ -54,7 +54,7 @@ select{font-family:inherit;font-size:12.5px;padding:7px 10px;border:1px solid va
 .seg .thumb{position:absolute;top:3px;bottom:3px;left:0;border-radius:7px;background:var(--tb);box-shadow:0 4px 16px rgba(91,95,239,.45);transition:transform .45s var(--ease),width .45s var(--ease)}
 .seg button{position:relative;z-index:1;border:0;background:transparent;color:var(--t2);padding:5px 11px;font-size:12px;border-radius:7px;cursor:pointer;white-space:nowrap;transition:color .3s}
 .seg button.on{color:#fff;font-weight:700}
-.chiprow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 28px 0}
+.chiprow{display:flex;flex-wrap:wrap;gap:6px;padding:10px 28px 0}
 .chiprow::-webkit-scrollbar{display:none}
 .chip{border:1px solid var(--line2);background:transparent;border-radius:999px;padding:5px 12px;font-size:12.5px;cursor:pointer;color:var(--t2);white-space:nowrap;transition:all .3s var(--ease)}
 .chip:hover{color:var(--t1);border-color:rgba(143,147,255,.5)}
@@ -287,7 +287,8 @@ svg.leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;o
  .top .sp{display:none}
  .ctl{width:100%;justify-content:space-between}
  .ctl select{flex:1;max-width:none}
- .chiprow{padding:8px 14px 0}
+ .chiprow{padding:8px 14px 0;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}
+ .chiprow::after{content:"";flex:0 0 24px}
  .hero{padding:24px 16px 28px}
  .hdate{font-size:11.5px}
  .htitle{font-size:26px}
