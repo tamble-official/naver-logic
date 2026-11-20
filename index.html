@@ -236,6 +236,17 @@ svg.leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;o
 .dl td{font-size:12.5px}
 .ti{max-width:330px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .foot{grid-column:span 12;text-align:center;color:var(--t3);font-size:12px;padding-top:20px}
+/* ---------- drawer result list (card) */
+.rl2 .item{display:grid;grid-template-columns:26px 1fr;gap:10px;padding:12px 2px;border-bottom:1px solid var(--line);animation:rowin .5s var(--ease) both;animation-delay:calc(var(--j)*25ms)}
+.rl2 .no{color:var(--t3);font-size:12px;padding-top:2px;text-align:right}
+.rl2 .tt{font-size:13.5px;line-height:1.45;color:var(--t1);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;word-break:keep-all;overflow-wrap:anywhere}
+.rl2 a.tt:hover{color:#fff;text-decoration:underline}
+.rl2 .tt.ad{color:var(--t3)}
+.rl2 .meta{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:12px;color:var(--t2);margin-top:6px;min-width:0}
+.rl2 .ty{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.rl2 .src{min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--t2)}
+.rl2 .nb{white-space:nowrap;color:var(--t1)}
+.rl2 .nb i{font-style:normal;color:var(--t3);margin-right:3px}
 /* ---------- responsive */
 .hcols{display:contents}
 .hbottom{position:absolute;left:40px;right:40px;bottom:40px;display:grid;grid-template-columns:minmax(220px,300px) minmax(240px,440px) minmax(220px,320px);justify-content:space-between;align-items:end;gap:24px}
@@ -549,7 +560,7 @@ body.locked .app{visibility:hidden}
   <div class="cap3">HISTORY · 날짜별 앞 20칸</div>
   <div id="dHist"></div>
   <div class="cap3">RESULT LIST</div>
-  <table class="tbl dl" id="dList"></table>
+  <div class="rl2" id="dList"></div>
 </aside>
 
 <script>
@@ -942,7 +953,7 @@ function openDrawer(kw){
   $('dFlow').innerHTML = f.map(t=> isCard(t) ? sq(t,'',j++) : `<span class="sec">${esc(t)}</span>`).join('') || '<span class="empty">아직 수집 전이에요</span>';
   $('dHist').innerHTML = DATES.slice().reverse().map(d=>{ const cs = cardsOf(D.days[d]?.[kw]); return cs.length ? `<div class="hrow"><span class="d">${md(d)}</span><div class="sqs" style="flex-wrap:wrap">${cs.slice(0,20).map((t,i)=>sq(t, i>=10?'fd':'')).join('')}</div></div>` : ''; }).join('');
   const cd = DET()[kw];
-  $('dList').innerHTML = !window.DETAIL ? '<tr><td class="mut">글 목록 불러오는 중…</td></tr>' : !cd ? '<tr><td class="mut">상세 없음</td></tr>' : '<tr><th>#</th><th>종류</th><th>출처</th><th>이웃</th><th>글 제목</th></tr>' + cd.map((c,i)=>`<tr><td class="mut">${i+1}</td><td style="white-space:nowrap">${sq(c.t)} ${T[c.t]?.[0]||''}</td><td>${esc(c.n)}${c.pw?' <span class="badge">파워</span>':''}</td><td style="white-space:nowrap">${c.nb!=null?nfmt(c.nb)+'명':''}</td><td class="ti">${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:`<span class="mut">${esc(c.ti||'광고 카드')}</span>`}</td></tr>`).join('');
+  $('dList').innerHTML = !window.DETAIL ? '<div class="empty">글 목록 불러오는 중…</div>' : !cd ? '<div class="empty">상세 없음</div>' : cd.map((c,i)=>`<div class="item" style="--j:${Math.min(i,24)}"><span class="no">${i+1}</span><div style="min-width:0">${c.u?`<a class="tt" href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:`<span class="tt ad">${esc(c.ti||'광고 카드')}</span>`}<div class="meta"><span class="ty">${sq(c.t)} ${T[c.t]?.[0]||''}</span>${c.n?`<span class="src" title="${esc(c.n)}">${esc(c.n)}</span>`:''}${c.nb!=null?`<span class="nb"><i>이웃</i>${nfmt(c.nb)}명</span>`:''}${c.pw?'<span class="badge">파워</span>':''}</div></div></div>`).join('');
   $('drawer').classList.add('on'); $('scrim').classList.add('on'); $('drawer').scrollTop = 0; $('drawer').dataset.kw = kw;
 }
 function closeDrawer(){ $('drawer').classList.remove('on'); $('scrim').classList.remove('on'); }
