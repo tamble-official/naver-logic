@@ -252,6 +252,27 @@ svg.leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;o
 }
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.panel{opacity:1;filter:none;transform:none}}
 
+/* ---------- neighbors */
+.nbbig{display:flex;align-items:baseline;gap:8px;margin:4px 0 2px}
+.nbbig .n{font-size:40px;line-height:1}
+.nbbig small{font-size:14px;color:var(--t2)}
+.bk{display:grid;grid-template-columns:86px 1fr 74px;align-items:center;gap:10px;margin:9px 0;font-size:12.5px;color:var(--t2)}
+.bk .tr{height:10px;border-radius:9px;background:rgba(255,255,255,.05);overflow:hidden}
+.bk .tr div{height:100%;border-radius:9px;background:linear-gradient(90deg,#5B5FEF,#A77BFF);transform:scaleX(0);transform-origin:left;transition:transform 1.3s var(--ease);transition-delay:calc(var(--i)*80ms + .15s)}
+.go .bk .tr div{transform:scaleX(1)}
+.bk b{color:var(--t1);font-weight:500}
+.nbcols{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:14px}
+.nbl .h{font-size:11.5px;color:var(--t3);margin-bottom:6px;letter-spacing:.3px}
+.nbl .it{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:12.5px;cursor:pointer}
+.nbl .it:hover span:first-child{color:#fff}
+.nbl .it b{font-weight:500}
+.nbv{display:flex;align-items:flex-end;gap:10px;height:220px;border-bottom:1px solid var(--line);padding-top:24px}
+.nbv .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;position:relative}
+.nbv .b{width:60%;max-width:26px;border-radius:6px 6px 2px 2px;background:linear-gradient(180deg,#A77BFF,#5B5FEF);transform-origin:bottom;transform:scaleY(0);transition:transform 1.3s var(--ease);transition-delay:calc(var(--k)*60ms + .1s)}
+.go .nbv .b{transform:scaleY(1)}
+.nbv .v{font-size:11px;color:var(--t2);white-space:nowrap}
+.nbvl{display:flex;gap:10px;margin-top:8px}.nbvl span{flex:1;text-align:center;font-size:11px;color:var(--t3)}
+@media(max-width:900px){.nbcols{grid-template-columns:1fr}}
 /* ---------- login */
 body.locked{overflow:hidden}
 body.locked .app{visibility:hidden}
@@ -313,6 +334,7 @@ body.locked .app{visibility:hidden}
     <a href="#p-pos" data-s="p-pos"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 17l5-6 4 3 5-7 4 4"/></svg>자리별 분석</span></a>
     <a href="#p-race" data-s="p-race"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h10M4 12h16M4 18h7"/></svg>우선순위 레이스</span></a>
     <a href="#p-cmp" data-s="p-cmp"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 20V10M12 20V4M18 20v-7"/></svg>업종·지역 비교</span></a>
+    <a href="#p-nb" data-s="p-nb"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.4"/><path d="M3 19c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5M15 15c2.6 0 4.6 1.2 5.5 3.6"/></svg>이웃수 분석</span></a>
     <a href="#p-kw" data-s="p-kw"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>키워드</span></a>
     <a href="#p-hist" data-s="p-hist"><span class="l"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l3 2"/></svg>날짜별 변화</span></a>
   </nav>
@@ -390,6 +412,21 @@ body.locked .app{visibility:hidden}
       <div class="vb" id="vb"></div>
       <div class="vbl" id="vbl"></div>
       <div class="lgd" style="margin-top:12px"><span><i style="background:#5B5FEF"></i>블로그가 처음 나오는 칸</span><span><i style="background:#FFB547"></i>카페가 처음 나오는 칸</span><span style="color:var(--t3)">막대가 높을수록 위쪽(빠른 칸)</span></div>
+    </div>
+
+    <div class="panel s7" id="p-nb">
+      <div class="ph"><h3>상위 노출 블로그의 이웃수</h3><span class="tag" id="nbTag"></span></div>
+      <div class="psub" id="nbSub"></div>
+      <div class="nbbig"><span class="n num" id="nbMed"></span><small>명 · 중앙값</small></div>
+      <div class="psub" id="nbMean" style="margin-bottom:6px"></div>
+      <div id="nbBk"></div>
+      <div class="nbcols"><div class="nbl" id="nbLow"></div><div class="nbl" id="nbHigh"></div></div>
+    </div>
+    <div class="panel s5" id="p-nbpos" style="--rd:.08s">
+      <div class="ph"><h3>자리별 이웃수</h3><span class="tag">중앙값</span></div>
+      <div class="psub">몇 번째 칸에 뜬 블로그가 이웃이 몇 명인지예요. 위쪽 칸일수록 큰 블로그인지 보여줘요</div>
+      <div class="nbv" id="nbv"></div>
+      <div class="nbvl" id="nbvl"></div>
     </div>
 
     <div class="panel" id="p-kw">
@@ -506,6 +543,32 @@ function cmpRows(){
   const g = {}; base.forEach(k=>{ (g[keyf(k)] ||= []).push(k.kw); });
   return Object.entries(g).map(([name, ks])=>({name, ks, n:ks.length, bf:famFirst(LAST,ks,'BIO'), cf:famFirst(LAST,ks,'CD'), af:famFirst(LAST,ks,'A')})).filter(r=>r.bf!=null);
 }
+const NB = D.nb || {};
+function nbVals(kws, top){ top = top || 10; const v = [], pos = []; for (const kw of kws){ const a = NB[kw]; if (!a) continue; a.slice(0, top).forEach((n,i)=>{ if (n!=null){ v.push(n); (pos[i] ||= []).push(n); } }); } return {v, pos}; }
+const median = a => { if (!a || !a.length) return null; const s = a.slice().sort((x,y)=>x-y); const m = s.length>>1; return s.length%2 ? s[m] : Math.round((s[m-1]+s[m])/2); };
+const nfmt = n => n==null ? '-' : n>=10000 ? (n/10000).toFixed(n>=100000?0:1).replace(/\.0$/,'')+'만' : Math.round(n).toLocaleString();
+const BUCKETS = [[0,100,'100명 미만'],[100,500,'100~499명'],[500,1000,'500~999명'],[1000,5000,'1천~5천'],[5000,10000,'5천~1만'],[10000,1e12,'1만 이상']];
+function nbPanel(){
+  const ks = scope(); const {v, pos} = nbVals(ks);
+  $('nbTag').textContent = scopeName();
+  $('nbSub').textContent = `상위 10칸에 뜬 블로그 ${v.length.toLocaleString()}개 기준 · 이웃수 확인된 블로그 ${(D.nbCached||0).toLocaleString()}개 (새벽마다 늘어나요)`;
+  const med = median(v);
+  $('nbMed').innerHTML = med==null ? '-' : odo(Math.round(med).toLocaleString());
+  const mean = v.length ? v.reduce((a,b)=>a+b,0)/v.length : null;
+  $('nbMean').textContent = v.length ? `평균 ${nfmt(mean)}명 · 가장 작은 블로그 ${nfmt(Math.min(...v))}명 · 가장 큰 블로그 ${nfmt(Math.max(...v))}명` : '아직 이웃수가 모이지 않았어요';
+  $('nbBk').innerHTML = BUCKETS.map(([a,b,l],i)=>{ const n = v.filter(x=>x>=a && x<b).length; const p = v.length ? n/v.length*100 : 0; return `<div class="bk"><span>${l}</span><div class="tr"><div style="width:${p}%;--i:${i}"></div></div><span style="text-align:right"><b>${Math.round(p)}%</b> · ${n}</span></div>`; }).join('');
+  const rows = cmpRows().map(r=>({name:r.name, med: median(nbVals(r.ks).v), n: nbVals(r.ks).v.length})).filter(r=>r.med!=null && r.n>=5);
+  const dim = st.by==='rg' ? '지역' : st.grp==='전체' ? '분류' : '카테고리';
+  const li = (arr, h) => `<div class="h">${h}</div>` + arr.map(r=>`<div class="it" data-nb="${esc(r.name)}"><span>${esc(r.name)}</span><b>${nfmt(r.med)}명</b></div>`).join('');
+  $('nbLow').innerHTML = li(rows.slice().sort((a,b)=>a.med-b.med).slice(0,5), `작은 블로그도 상위에 뜨는 ${dim}`);
+  $('nbHigh').innerHTML = li(rows.slice().sort((a,b)=>b.med-a.med).slice(0,5), `큰 블로그가 차지한 ${dim}`);
+  document.querySelectorAll('[data-nb]').forEach(el=>el.onclick=()=>{ const v2 = el.dataset.nb; if (st.by==='rg') st.rg = v2; else if (st.grp==='전체') { st.grp = v2; st.cat='전체'; } else st.cat = v2; update(); window.scrollTo({top:0,behavior:'smooth'}); });
+  // 자리별 중앙값
+  const meds = Array.from({length:10},(_,i)=>median(pos[i]||[]));
+  const mx = Math.max(1, ...meds.filter(x=>x!=null));
+  $('nbv').innerHTML = meds.map((m,k)=>`<div class="c" title="${k+1}번째 칸 블로그 ${(pos[k]||[]).length}개 · 중앙값 ${nfmt(m)}명"><span class="v">${m==null?'':nfmt(m)}</span><div class="b" style="height:${m==null?0:Math.max(3, m/mx*85)}%;--k:${k}"></div></div>`).join('');
+  $('nbvl').innerHTML = meds.map((_,k)=>`<span>${k+1}</span>`).join('');
+}
 function replay(el){ if (!el) return; el.classList.remove('go'); void el.offsetWidth; requestAnimationFrame(()=>el.classList.add('go')); }
 
 // ---------- controls
@@ -575,7 +638,8 @@ function hero(){
   $('hRight').innerHTML = [
     ['블로그 첫 등장', fmt(bf)+'<small>번째</small>', '블로그 계열(일반·인플루언서·공식)이 처음 나오는 칸', '#7C80FF', 'r0'],
     ['카페 첫 등장', fmt(cf)+'<small>번째</small>', '카페·대표카페가 처음 나오는 칸', '#FFB547', 'r1'],
-    ['상위 5칸 중 블로그', Math.round(blogTopShare)+'<small>%</small>', '맨 위 다섯 칸에서 블로그가 차지하는 비율', '#9B7BFF', 'r2']
+    ['상위 5칸 중 블로그', Math.round(blogTopShare)+'<small>%</small>', '맨 위 다섯 칸에서 블로그가 차지하는 비율', '#9B7BFF', 'r2'],
+    ['상위 블로그 이웃수', nfmt(median(nbVals(ks).v))+'<small>명</small>', '상위 10칸에 뜬 블로그의 이웃수 중앙값', '#C3C5FF', 'r3']
   ].map(([k,v,s,c,id],i)=>`<div class="pitem" data-lead="${id}"><div class="row1"><span class="nm">${k}</span><span class="v num">${v}</span></div><svg class="pulse" viewBox="0 0 200 18" preserveAspectRatio="none" style="--c:${c};--dl:${i*.9+.3}s"><path class="bg" fill="none" stroke-width="1" d="${pulsePath(i+5)}"/><path class="fg" fill="none" stroke-width="1.6" d="${pulsePath(i+5)}"/></svg><div class="sub"><span>${s}</span></div></div>`).join('');
   // 왼쪽 아래 큰 숫자 + 스파크 (자리별 블로그 비율)
   $('hBig').innerHTML = odo(p.slots.toLocaleString()) + '<small>칸</small>';
@@ -756,7 +820,7 @@ function table(){
   const per = 15, pages = Math.max(1, Math.ceil(info.length/per)); st.page = Math.min(st.page, pages-1);
   const rows = info.slice(st.page*per, st.page*per+per);
   const lab = v => v===99 ? '<span class="mut">없음</span>' : v+'번째';
-  $('tbl').innerHTML = '<tr><th>#</th><th>키워드</th><th class="hide-m">분류</th><th class="hide-m">지역</th><th>1 — 10번째 칸</th><th>블로그 첫</th><th>카페 첫</th></tr>' + rows.map((r,j)=>`<tr class="r" data-kw="${esc(r.k.kw)}" style="--j:${j}"><td class="mut">${st.page*per+j+1}</td><td class="kw">${esc(r.k.kw)}</td><td class="hide-m"><span class="pill"><i style="background:#5B5FEF"></i>${esc(r.k.cat)}</span></td><td class="hide-m mut">${esc(r.k.rg)}</td><td>${r.cs.length?`<div class="sqs">${r.cs.slice(0,10).map(t=>sq(t)).join('')}</div>`:'<span class="mut">수집 전</span>'}</td><td>${lab(r.bi)}</td><td>${lab(r.ci)}</td></tr>`).join('');
+  $('tbl').innerHTML = '<tr><th>#</th><th>키워드</th><th class="hide-m">분류</th><th class="hide-m">지역</th><th>1 — 10번째 칸</th><th>블로그 첫</th><th>카페 첫</th><th>블로그 이웃</th></tr>' + rows.map((r,j)=>`<tr class="r" data-kw="${esc(r.k.kw)}" style="--j:${j}"><td class="mut">${st.page*per+j+1}</td><td class="kw">${esc(r.k.kw)}</td><td class="hide-m"><span class="pill"><i style="background:#5B5FEF"></i>${esc(r.k.cat)}</span></td><td class="hide-m mut">${esc(r.k.rg)}</td><td>${r.cs.length?`<div class="sqs">${r.cs.slice(0,10).map(t=>sq(t)).join('')}</div>`:'<span class="mut">수집 전</span>'}</td><td>${lab(r.bi)}</td><td>${lab(r.ci)}</td><td>${(()=>{ const m = median((NB[r.k.kw]||[]).slice(0,10).filter(x=>x!=null)); return m==null?'<span class="mut">-</span>':nfmt(m)+'명'; })()}</td></tr>`).join('');
   $('tbl').querySelectorAll('tr.r').forEach(tr=>tr.onclick=()=>openDrawer(tr.dataset.kw));
   const btn = (i,l,dis,on) => `<button data-p="${i}"${dis?' disabled':''} class="${on?'on':''}">${l}</button>`;
   let nums = []; for (let i=Math.max(0,st.page-2); i<Math.min(pages, st.page+3); i++) nums.push(btn(i, i+1, false, i===st.page));
@@ -785,7 +849,7 @@ function openDrawer(kw){
   $('dFlow').innerHTML = f.map(t=> isCard(t) ? sq(t,'',j++) : `<span class="sec">${esc(t)}</span>`).join('') || '<span class="empty">아직 수집 전이에요</span>';
   $('dHist').innerHTML = DATES.slice().reverse().map(d=>{ const cs = cardsOf(D.days[d]?.[kw]); return cs.length ? `<div class="hrow"><span class="d">${md(d)}</span><div class="sqs" style="flex-wrap:wrap">${cs.slice(0,20).map((t,i)=>sq(t, i>=10?'fd':'')).join('')}</div></div>` : ''; }).join('');
   const cd = DET()[kw];
-  $('dList').innerHTML = !window.DETAIL ? '<tr><td class="mut">글 목록 불러오는 중…</td></tr>' : !cd ? '<tr><td class="mut">상세 없음</td></tr>' : '<tr><th>#</th><th>종류</th><th>출처</th><th>글 제목</th></tr>' + cd.map((c,i)=>`<tr><td class="mut">${i+1}</td><td style="white-space:nowrap">${sq(c.t)} ${T[c.t]?.[0]||''}</td><td>${esc(c.n)}</td><td class="ti">${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:`<span class="mut">${esc(c.ti||'광고 카드')}</span>`}</td></tr>`).join('');
+  $('dList').innerHTML = !window.DETAIL ? '<tr><td class="mut">글 목록 불러오는 중…</td></tr>' : !cd ? '<tr><td class="mut">상세 없음</td></tr>' : '<tr><th>#</th><th>종류</th><th>출처</th><th>이웃</th><th>글 제목</th></tr>' + cd.map((c,i)=>`<tr><td class="mut">${i+1}</td><td style="white-space:nowrap">${sq(c.t)} ${T[c.t]?.[0]||''}</td><td>${esc(c.n)}${c.pw?' <span class="badge">파워</span>':''}</td><td style="white-space:nowrap">${c.nb!=null?nfmt(c.nb)+'명':''}</td><td class="ti">${c.u?`<a href="${esc(c.u)}" target="_blank" rel="noopener">${esc(c.ti||c.u)}</a>`:`<span class="mut">${esc(c.ti||'광고 카드')}</span>`}</td></tr>`).join('');
   $('drawer').classList.add('on'); $('scrim').classList.add('on'); $('drawer').scrollTop = 0; $('drawer').dataset.kw = kw;
 }
 function closeDrawer(){ $('drawer').classList.remove('on'); $('scrim').classList.remove('on'); }
@@ -797,7 +861,7 @@ function statusBox(){
   const now = new Date(Date.now()+9*3600e3); const h = now.getUTCHours(); const nxt = [1,3,5,7].find(x=>x>h) ?? 1;
   $('stNext').textContent = `키워드 ${KWS.length}개 · 매일 새벽 1·3·5·7시 수집 · 다음 ${nxt}시`;
 }
-function render(){ syncControls(); hero(); kpis(); lineChart(); donut(); race(); cmpChart(); table(); history(); statusBox(); }
+function render(){ syncControls(); hero(); kpis(); lineChart(); donut(); race(); cmpChart(); nbPanel(); table(); history(); statusBox(); }
 initControls(); render();
 requestAnimationFrame(()=>requestAnimationFrame(()=>$('hero').classList.add('go')));
 // 패널: 화면에 들어오면 블러 걷히며 등장 + 차트 애니메이션
@@ -805,7 +869,7 @@ const io = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting){ e
 document.querySelectorAll('.panel').forEach(p=>io.observe(p));
 document.querySelectorAll('.panel').forEach(c=>c.addEventListener('pointermove', e=>{ const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX-r.left)+'px'); c.style.setProperty('--my', (e.clientY-r.top)+'px'); }));
 // 사이드 메뉴 활성 표시
-(function(){ const links = [...document.querySelectorAll('#navMain a')]; const io2 = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting) links.forEach(l=>l.classList.toggle('on', l.dataset.s===e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'}); ['hero','p-pos','p-race','p-cmp','p-kw','p-hist'].forEach(id=>io2.observe($(id))); })();
+(function(){ const links = [...document.querySelectorAll('#navMain a')]; const io2 = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting) links.forEach(l=>l.classList.toggle('on', l.dataset.s===e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'}); ['hero','p-pos','p-race','p-cmp','p-nb','p-kw','p-hist'].forEach(id=>io2.observe($(id))); })();
 addEventListener('resize', ()=>{ clearTimeout(window.__rz); window.__rz = setTimeout(()=>{ lineChart(); leads(); }, 200); });
 setTimeout(()=>{ const s = document.createElement('script'); s.src = 'detail.js?v=' + D.updated; document.body.appendChild(s); }, 800);
 $('logout').onclick = () => { localStorage.removeItem(AUTH_KEY); sessionStorage.removeItem(AUTH_KEY); location.reload(); };
