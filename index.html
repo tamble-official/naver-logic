@@ -236,20 +236,91 @@ svg.leads{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;o
 .dl td{font-size:12.5px}
 .ti{max-width:330px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .foot{grid-column:span 12;text-align:center;color:var(--t3);font-size:12px;padding-top:20px}
-@media(max-width:1180px){.s3{grid-column:span 6}.s4,.s5,.s7,.s8{grid-column:span 12}.s6{grid-column:span 12}}
-@media(max-width:1100px){.hcol{width:240px}.hcol.l{left:20px}.hcol.r{right:20px}.bigstat{left:20px}.rbox{right:20px}}
-@media(max-width:900px){
- .app{grid-template-columns:1fr}.side{display:none}
- .top{padding:12px 14px;flex-wrap:wrap}.chiprow{padding:10px 14px 0}
- .hero{height:auto;min-height:0;padding:28px 16px 30px}
- .hdate,.htitle{position:static}.htitle{margin:6px 0 10px}
- .stage{position:relative;left:auto;top:auto;transform:none;width:min(360px,86vw);margin:10px auto}
- .hcol,.bigstat,.rbox,.ask{position:static;width:auto;transform:none;margin:18px 0 0}
- svg.leads{display:none}
- .dash{padding:8px 14px 100px;gap:12px}.s3{grid-column:span 12}
- .race .ri{grid-template-columns:24px 90px 1fr 70px}
- .hide-m{display:none}
+/* ---------- responsive */
+.hcols{display:contents}
+.hbottom{position:absolute;left:40px;right:40px;bottom:40px;display:grid;grid-template-columns:minmax(220px,300px) minmax(240px,440px) minmax(220px,320px);justify-content:space-between;align-items:end;gap:24px}
+.hbottom .bigstat,.hbottom .rbox,.hbottom .ask{position:static;width:auto;transform:none;left:auto;right:auto;bottom:auto}
+.hbottom .ask{align-self:end;margin-bottom:6px}
+.menu-btn,.mbrand{display:none}
+.menu-btn{border:1px solid var(--line2);background:transparent;color:var(--t1);border-radius:10px;width:36px;height:36px;place-items:center;cursor:pointer;flex:none}
+.mbrand .lg{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,#5B5FEF,#9B7BFF);display:grid;place-items:center;font-weight:900;font-size:12px}
+.sm-only,.sm-sub{display:none}
+.sm-sub{font-size:11px;color:var(--t3);font-weight:400;margin-top:2px}
+.vbwrap{overflow-x:auto;scrollbar-width:thin}
+.mtab,.navscrim{display:none}
+@media(max-width:1439px){
+ .hcol{width:240px}.hcol.l{left:28px}.hcol.r{right:28px}
+ .stage{width:min(440px,34vw)}
+ .hbottom{left:28px;right:28px;grid-template-columns:minmax(200px,260px) minmax(220px,380px) minmax(200px,280px)}
+ .bigstat .n{font-size:32px}
 }
+@media(max-width:1280px){.s3{grid-column:span 6}.s4,.s5,.s7,.s8{grid-column:span 12}}
+@media(max-width:1100px){
+ .app{grid-template-columns:1fr}
+ .side{position:fixed;left:0;top:0;bottom:0;width:260px;transform:translateX(-102%);transition:transform .45s var(--ease);z-index:60;box-shadow:20px 0 60px rgba(0,0,0,.5)}
+ body.navopen .side{transform:none}
+ .navscrim{display:block;position:fixed;inset:0;z-index:55;background:rgba(2,3,8,.5);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity .35s}
+ body.navopen .navscrim{opacity:1;pointer-events:auto}
+ .menu-btn{display:grid}.mbrand{display:block}
+ .sm-only{display:flex}
+ .top{padding:12px 18px}
+ .chiprow{padding:10px 18px 0}
+ .hero{height:auto;min-height:0;padding:34px 24px 34px}
+ .hdate,.htitle{position:static}.htitle{margin:6px 0 4px}
+ .stage{position:relative;left:auto;top:auto;transform:none;width:min(420px,70vw);margin:12px auto 6px}
+ svg.leads{display:none}
+ .hcol{position:static;width:auto}
+ .hcols{display:grid;grid-template-columns:1fr 1fr;gap:28px;margin-top:10px}
+ .hbottom{position:static;display:grid;grid-template-columns:1fr 1fr;gap:24px 28px;margin-top:22px}
+ .hbottom .ask{grid-column:1 / -1;grid-row:1;width:100%;margin:0 0 6px}
+ .dash{padding:8px 18px 110px}
+ .mtab{display:flex;position:fixed;left:12px;right:12px;bottom:12px;z-index:50;justify-content:space-around;padding:6px;border-radius:18px;background:rgba(14,15,26,.82);border:1px solid var(--line2);backdrop-filter:blur(18px);box-shadow:0 14px 40px rgba(0,0,0,.5)}
+ .mtab a{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;color:var(--t3);padding:6px 10px;border-radius:12px;transition:color .3s,background-color .3s}
+ .mtab a svg{width:19px;height:19px}
+ .mtab a.on{color:#fff;background:rgba(91,95,239,.25)}
+ .drawer{width:min(620px,100vw)}
+}
+@media(max-width:820px){.s3{grid-column:span 6}.nbcols{grid-template-columns:1fr}}
+@media(max-width:640px){
+ body{font-size:13px}
+ .top{flex-wrap:wrap;gap:10px;padding:10px 14px}
+ .top .sp{display:none}
+ .ctl{width:100%;justify-content:space-between}
+ .ctl select{flex:1;max-width:none}
+ .chiprow{padding:8px 14px 0}
+ .hero{padding:24px 16px 28px}
+ .hdate{font-size:11.5px}
+ .htitle{font-size:26px}
+ .stage{width:min(330px,82vw)}
+ .hcols{grid-template-columns:1fr;gap:6px}
+ .hbottom{grid-template-columns:1fr;gap:20px}
+ .pitem .v{font-size:20px}
+ .dash{padding:6px 12px 100px;gap:12px}
+ .panel{padding:16px 14px;border-radius:16px}
+ .kpi .v{font-size:24px}
+ .lc svg{height:220px}
+ .dn{width:180px;height:180px}
+ .race .ri{grid-template-columns:22px 92px 1fr 64px;gap:8px}
+ .race .nm{font-size:12.5px}
+ .vbin{min-width:640px}
+ .tools{width:100%;flex-wrap:wrap}.search{flex:1 1 100%}.search input{width:100%}
+ #tSort{width:100%;justify-content:space-between}#tSort button{flex:1}
+ .tbl td,.tbl th{padding:9px 6px}
+ .tbl .sq{width:16px;height:16px;font-size:9px;border-radius:5px}
+ .sqs{gap:2px}
+ .hide-s,.hide-m{display:none}
+ .sm-sub{display:block}
+ .pg{flex-direction:column;gap:8px}
+ .hrow{flex-wrap:wrap}
+ .rkc .it em{display:none}
+ .nbbig .n{font-size:32px}
+ .bk{grid-template-columns:72px 1fr 64px}
+ .drawer{padding:20px 16px 60px}
+ .drawer h2{font-size:21px}
+ .dl .ti{max-width:150px}
+ .flow .sq{width:20px;height:20px}
+}
+@media(max-width:380px){.s3{grid-column:span 12}.mtab a{padding:6px 6px}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.panel{opacity:1;filter:none;transform:none}}
 
 /* ---------- neighbors */
@@ -344,6 +415,8 @@ body.locked .app{visibility:hidden}
 
 <main class="main">
   <div class="top">
+    <button class="menu-btn" id="menuBtn" aria-label="메뉴"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg></button>
+    <span class="mbrand"><span class="lg">T</span></span>
     <div class="crumb">Logic Radar › <b id="crumb">전체</b></div>
     <div class="sp"></div>
     <div class="ctl">
@@ -352,6 +425,7 @@ body.locked .app{visibility:hidden}
       <span class="seg" id="bySeg"></span>
     </div>
   </div>
+  <div class="chiprow sm-only" id="grpChips"></div>
   <div class="chiprow" id="catChips"></div>
 
   <section class="hero" id="hero">
@@ -363,6 +437,7 @@ body.locked .app{visibility:hidden}
       <canvas id="orb"></canvas>
       <svg class="hud" viewBox="0 0 100 100" id="hud"></svg>
     </div>
+    <div class="hcols">
     <div class="hcol l">
       <div class="cap2">노출 우선순위 · 평균 몇 번째 칸</div>
       <div id="hPrio"></div>
@@ -372,6 +447,8 @@ body.locked .app{visibility:hidden}
       <div class="cap2">블로그가 들어갈 자리</div>
       <div id="hRight"></div>
     </div>
+    </div>
+    <div class="hbottom">
     <div class="bigstat">
       <div class="cap2">분석한 검색 결과</div>
       <div class="n num" id="hBig"></div>
@@ -379,8 +456,9 @@ body.locked .app{visibility:hidden}
       <div class="spark" id="hSpark"></div>
       <div class="spark-l"><span>1번째 칸</span><span id="hSparkR">20번째</span></div>
     </div>
-    <div class="rbox" id="hBox"></div>
     <label class="ask"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><input id="askIn" list="kwList" placeholder="키워드를 입력해 보세요 · 예) 강남 치과"><datalist id="kwList"></datalist></label>
+    <div class="rbox" id="hBox"></div>
+    </div>
   </section>
 
   <section class="dash">
@@ -409,8 +487,8 @@ body.locked .app{visibility:hidden}
     <div class="panel s7" id="p-cmp" style="--rd:.08s">
       <div class="ph"><h3 id="cmpT">분류별 첫 등장 칸</h3><span class="seg" id="sortSeg"></span></div>
       <div class="psub" id="cmpS"></div>
-      <div class="vb" id="vb"></div>
-      <div class="vbl" id="vbl"></div>
+      <div class="vbwrap"><div class="vbin"><div class="vb" id="vb"></div>
+      <div class="vbl" id="vbl"></div></div></div>
       <div class="lgd" style="margin-top:12px"><span><i style="background:#5B5FEF"></i>블로그가 처음 나오는 칸</span><span><i style="background:#FFB547"></i>카페가 처음 나오는 칸</span><span style="color:var(--t3)">막대가 높을수록 위쪽(빠른 칸)</span></div>
     </div>
 
@@ -451,6 +529,14 @@ body.locked .app{visibility:hidden}
 </main>
 </div>
 
+<nav class="mtab" id="mtab">
+  <a href="#hero" data-s="hero" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/></svg>오늘</a>
+  <a href="#p-pos" data-s="p-pos"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 17l5-6 4 3 5-7 4 4"/></svg>자리</a>
+  <a href="#p-cmp" data-s="p-cmp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 20V10M12 20V4M18 20v-7"/></svg>비교</a>
+  <a href="#p-nb" data-s="p-nb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="9" cy="8" r="3.2"/><path d="M3 19c.8-3 3.2-4.5 6-4.5s5.2 1.5 6 4.5"/></svg>이웃</a>
+  <a href="#p-kw" data-s="p-kw"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>키워드</a>
+</nav>
+<div class="navscrim" id="navScrim"></div>
 <div class="scrim" id="scrim"></div>
 <aside class="drawer" id="drawer">
   <button class="x" id="dX">✕</button>
@@ -594,9 +680,15 @@ function initControls(){
   $('kwList').innerHTML = KWS.map(k=>`<option value="${esc(k.kw)}">${esc(k.grp)} · ${esc(k.cat)}</option>`).join('');
   $('askIn').onchange = e => { const k = KWS.find(x=>x.kw===e.target.value.trim()); if (k) openDrawer(k.kw); };
   $('askIn').onkeydown = e => { if (e.key==='Enter'){ const v = e.target.value.trim(); const k = KWS.find(x=>x.kw===v) || KWS.find(x=>x.kw.replace(/\s/g,'')===v.replace(/\s/g,'')) || KWS.find(x=>x.kw.includes(v)); if (k) openDrawer(k.kw); } };
+  const navOpen = on => document.body.classList.toggle('navopen', on);
+  $('menuBtn').onclick = () => navOpen(!document.body.classList.contains('navopen'));
+  $('navScrim').onclick = () => navOpen(false);
+  document.querySelectorAll('.side a, .side button').forEach(a=>a.addEventListener('click', ()=>navOpen(false)));
   $('scrim').onclick = closeDrawer; $('dX').onclick = closeDrawer; addEventListener('keydown', e=>{ if (e.key==='Escape') closeDrawer(); });
 }
 function syncControls(){
+  $('grpChips').innerHTML = ['전체', ...GRPS].map(g=>`<button class="chip${st.grp===g?' on':''}" data-gg="${esc(g)}">${esc(g)}<i>${g==='전체'?KWS.length:KWS.filter(k=>k.grp===g).length}</i></button>`).join('');
+  $('grpChips').querySelectorAll('[data-gg]').forEach(b=>b.onclick=()=>{ if (st.grp===b.dataset.gg) return; st.grp=b.dataset.gg; st.cat='전체'; st.rg='전체'; if (st.grp!=='지역 업종') st.by='cat'; update(); });
   $('navGrp').querySelectorAll('[data-g]').forEach(b=>b.classList.toggle('on', b.dataset.g===st.grp));
   $('crumb').textContent = scopeName();
   const cats = [...new Set(KWS.filter(k=>k.grp===st.grp).map(k=>k.cat))];
@@ -820,7 +912,7 @@ function table(){
   const per = 15, pages = Math.max(1, Math.ceil(info.length/per)); st.page = Math.min(st.page, pages-1);
   const rows = info.slice(st.page*per, st.page*per+per);
   const lab = v => v===99 ? '<span class="mut">없음</span>' : v+'번째';
-  $('tbl').innerHTML = '<tr><th>#</th><th>키워드</th><th class="hide-m">분류</th><th class="hide-m">지역</th><th>1 — 10번째 칸</th><th>블로그 첫</th><th>카페 첫</th><th>블로그 이웃</th></tr>' + rows.map((r,j)=>`<tr class="r" data-kw="${esc(r.k.kw)}" style="--j:${j}"><td class="mut">${st.page*per+j+1}</td><td class="kw">${esc(r.k.kw)}</td><td class="hide-m"><span class="pill"><i style="background:#5B5FEF"></i>${esc(r.k.cat)}</span></td><td class="hide-m mut">${esc(r.k.rg)}</td><td>${r.cs.length?`<div class="sqs">${r.cs.slice(0,10).map(t=>sq(t)).join('')}</div>`:'<span class="mut">수집 전</span>'}</td><td>${lab(r.bi)}</td><td>${lab(r.ci)}</td><td>${(()=>{ const m = median((NB[r.k.kw]||[]).slice(0,10).filter(x=>x!=null)); return m==null?'<span class="mut">-</span>':nfmt(m)+'명'; })()}</td></tr>`).join('');
+  $('tbl').innerHTML = '<tr><th class="hide-s">#</th><th>키워드</th><th class="hide-m">분류</th><th class="hide-m">지역</th><th>1 — 10번째 칸</th><th>블로그 첫</th><th class="hide-s">카페 첫</th><th class="hide-s">블로그 이웃</th></tr>' + rows.map((r,j)=>`<tr class="r" data-kw="${esc(r.k.kw)}" style="--j:${j}"><td class="mut hide-s">${st.page*per+j+1}</td><td class="kw">${esc(r.k.kw)}<div class="sm-sub">${esc(r.k.cat)} · ${esc(r.k.rg)}</div></td><td class="hide-m"><span class="pill"><i style="background:#5B5FEF"></i>${esc(r.k.cat)}</span></td><td class="hide-m mut">${esc(r.k.rg)}</td><td>${r.cs.length?`<div class="sqs">${r.cs.slice(0,10).map(t=>sq(t)).join('')}</div>`:'<span class="mut">수집 전</span>'}</td><td>${lab(r.bi)}</td><td class="hide-s">${lab(r.ci)}</td><td class="hide-s">${(()=>{ const m = median((NB[r.k.kw]||[]).slice(0,10).filter(x=>x!=null)); return m==null?'<span class="mut">-</span>':nfmt(m)+'명'; })()}</td></tr>`).join('');
   $('tbl').querySelectorAll('tr.r').forEach(tr=>tr.onclick=()=>openDrawer(tr.dataset.kw));
   const btn = (i,l,dis,on) => `<button data-p="${i}"${dis?' disabled':''} class="${on?'on':''}">${l}</button>`;
   let nums = []; for (let i=Math.max(0,st.page-2); i<Math.min(pages, st.page+3); i++) nums.push(btn(i, i+1, false, i===st.page));
@@ -869,7 +961,7 @@ const io = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting){ e
 document.querySelectorAll('.panel').forEach(p=>io.observe(p));
 document.querySelectorAll('.panel').forEach(c=>c.addEventListener('pointermove', e=>{ const r = c.getBoundingClientRect(); c.style.setProperty('--mx', (e.clientX-r.left)+'px'); c.style.setProperty('--my', (e.clientY-r.top)+'px'); }));
 // 사이드 메뉴 활성 표시
-(function(){ const links = [...document.querySelectorAll('#navMain a')]; const io2 = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting) links.forEach(l=>l.classList.toggle('on', l.dataset.s===e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'}); ['hero','p-pos','p-race','p-cmp','p-nb','p-kw','p-hist'].forEach(id=>io2.observe($(id))); })();
+(function(){ const links = [...document.querySelectorAll('#navMain a, #mtab a')]; const io2 = new IntersectionObserver(es=>es.forEach(e=>{ if (e.isIntersecting) links.forEach(l=>l.classList.toggle('on', l.dataset.s===e.target.id)); }), {rootMargin:'-40% 0px -55% 0px'}); ['hero','p-pos','p-race','p-cmp','p-nb','p-kw','p-hist'].forEach(id=>io2.observe($(id))); })();
 addEventListener('resize', ()=>{ clearTimeout(window.__rz); window.__rz = setTimeout(()=>{ lineChart(); leads(); }, 200); });
 setTimeout(()=>{ const s = document.createElement('script'); s.src = 'detail.js?v=' + D.updated; document.body.appendChild(s); }, 800);
 $('logout').onclick = () => { localStorage.removeItem(AUTH_KEY); sessionStorage.removeItem(AUTH_KEY); location.reload(); };
